@@ -20,6 +20,9 @@ const resultContainer = document.getElementById('resultContainer');
 const resultContent = document.getElementById('resultContent');
 const copyBtn = document.getElementById('copyBtn');
 
+// Toast Container
+const toastContainer = document.getElementById('toastContainer');
+
 // API Config Elements
 const apiConfigBtn = document.getElementById('apiConfigBtn');
 const apiModal = document.getElementById('apiModal');
@@ -40,6 +43,12 @@ const toolIcon = document.getElementById('toolIcon');
 const toolTitle = document.getElementById('toolTitle');
 const toolDescription = document.getElementById('toolDescription');
 const inputLabel = document.getElementById('inputLabel');
+const charCounter = document.getElementById('charCounter');
+const inputHelp = document.getElementById('inputHelp');
+const inputError = document.getElementById('inputError');
+
+// Breadcrumb
+const breadcrumb = document.getElementById('breadcrumb');
 
 // Current tool state
 let currentTool = null;
@@ -122,6 +131,9 @@ document.addEventListener('DOMContentLoaded', () => {
   initBackButton();
   initApiConfig();
   initPaywallModal();
+  initKeyboardShortcuts();
+  initFormValidation();
+  initTouchGestures();
   loadTheme();
   updateUsageDisplay();
 });
@@ -178,12 +190,71 @@ function openTool(toolId) {
     resultContainer.classList.add('hidden');
     resultContent.textContent = '';
     
+    // Update breadcrumb
+    updateBreadcrumb(toolData);
+    
     // Switch views
     dashboardView.classList.add('hidden');
     toolView.classList.remove('hidden');
     
     // Scroll to top
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+}
+
+function updateBreadcrumb(toolData) {
+  const categoryMap = {
+    'script-generator': 'Creadores',
+    'hook-generator': 'Creadores',
+    'caption-generator': 'Creadores',
+    'cv-optimizer': 'Empleo',
+    'cover-letter': 'Empleo',
+    'interview-prep': 'Empleo',
+    'email-sales': 'Negocios',
+    'pitch-deck': 'Negocios',
+    'value-proposition': 'Negocios'
+  };
+  
+  const category = categoryMap[currentTool] || 'Dashboard';
+  
+  breadcrumb.innerHTML = `
+    <span class="breadcrumb-item" onclick="goToDashboard()">Dashboard</span>
+    <span class="breadcrumb-separator">›</span>
+    <span class="breadcrumb-item" onclick="goToCategory('${category}')">${category}</span>
+    <span class="breadcrumb-separator">›</span>
+    <span class="breadcrumb-item active">${toolData.title}</span>
+  `;
+}
+
+function goToDashboard() {
+  toolView.classList.add('hidden');
+  dashboardView.classList.remove('hidden');
+  currentTool = null;
+  
+  breadcrumb.innerHTML = `
+    <span class="breadcrumb-item active">Dashboard</span>
+  `;
+  
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function goToCategory(category) {
+  const categoryMap = {
+    'Creadores': 'creadores',
+    'Empleo': 'empleo',
+    'Negocios': 'negocios'
+  };
+  
+  const categoryId = categoryMap[category];
+  if (categoryId) {
+    switchCategory(categoryId);
+    updateActiveNavButton(categoryId);
+    
+    breadcrumb.innerHTML = `
+      <span class="breadcrumb-item" onclick="goToDashboard()">Dashboard</span>
+      <span class="breadcrumb-separator">›</span>
+      <span class="breadcrumb-item active">${category}</span>
+    `;
   }
 }
 
@@ -327,6 +398,7 @@ async function generateContent(toolType) {
   
   // Show loading state
   generateBtn.disabled = true;
+  generateBtn.classList.add('loading');
   generateBtn.innerHTML = '<span class="btn-icon">⏳</span> Generando...';
   resultContainer.classList.remove('hidden');
   resultContent.textContent = 'Generando respuesta con IA...';
@@ -341,12 +413,33 @@ async function generateContent(toolType) {
     
     // Format response with proper line breaks
     resultContent.innerHTML = formatResponse(response);
+    
+    // Show success feedback
+    generateBtn.classList.remove('loading');
+    generateBtn.classList.add('success');
+    generateBtn.innerHTML = '<span class="btn-icon">✅</span> Generado';
+    showToast('success', '¡Éxito!', 'Contenido generado correctamente');
+    
+    setTimeout(() => {
+      generateBtn.classList.remove('success');
+      generateBtn.innerHTML = '<span class="btn-icon">✨</span> Generar con IA';
+    }, 2000);
+    
   } catch (error) {
     console.error('Error:', error);
     handleApiError(error);
+    
+    // Show error feedback
+    generateBtn.classList.remove('loading');
+    generateBtn.classList.add('error');
+    generateBtn.innerHTML = '<span class="btn-icon">❌</span> Error';
+    
+    setTimeout(() => {
+      generateBtn.classList.remove('error');
+      generateBtn.innerHTML = '<span class="btn-icon">✨</span> Generar con IA';
+    }, 2000);
   } finally {
     generateBtn.disabled = false;
-    generateBtn.innerHTML = '<span class="btn-icon">✨</span> Generar con IA';
   }
 }
 
@@ -632,6 +725,36 @@ function initPaywallModal() {
   });
 }
 
+// Toast Notification System
+function showToast(type, title, message, duration = 3000) {
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  
+  const icons = {
+    success: '✅',
+    error: '❌',
+    info: 'ℹ️'
+  };
+  
+  toast.innerHTML = `
+    <span class="toast-icon" aria-hidden="true">${icons[type] || icons.info}</span>
+    <div class="toast-content">
+      <div class="toast-title">${title}</div>
+      <div class="toast-message">${message}</div>
+    </div>
+  `;
+  
+  toastContainer.appendChild(toast);
+  
+  // Auto remove after duration
+  setTimeout(() => {
+    toast.style.animation = 'slideOutToast 0.3s ease forwards';
+    setTimeout(() => {
+      toast.remove();
+    }, 300);
+  }, duration);
+}
+
 // Update usage display in UI
 function updateUsageDisplay() {
   const usage = checkDailyLimit();
@@ -646,6 +769,210 @@ function updateUsageDisplay() {
   } else {
     console.warn('Usage display element not found');
   }
+}
+
+// Keyboard Shortcuts
+function initKeyboardShortcuts() {
+  document.addEventListener('keydown', (e) => {
+    // Don't trigger shortcuts when typing in inputs
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+      return;
+    }
+
+    // Category navigation (1, 2, 3)
+    if (e.key === '1') {
+      e.preventDefault();
+      switchCategory('creadores');
+      updateActiveNavButton('creadores');
+    } else if (e.key === '2') {
+      e.preventDefault();
+      switchCategory('empleo');
+      updateActiveNavButton('empleo');
+    } else if (e.key === '3') {
+      e.preventDefault();
+      switchCategory('negocios');
+      updateActiveNavButton('negocios');
+    }
+
+    // Theme toggle (T)
+    if (e.key === 't' || e.key === 'T') {
+      e.preventDefault();
+      themeToggle.click();
+    }
+
+    // API config (A)
+    if (e.key === 'a' || e.key === 'A') {
+      e.preventDefault();
+      apiConfigBtn.click();
+    }
+
+    // Reset usage (R)
+    if (e.key === 'r' || e.key === 'R') {
+      e.preventDefault();
+      resetUsageBtn.click();
+    }
+
+    // Go back to dashboard (Escape)
+    if (e.key === 'Escape' && !toolView.classList.contains('hidden')) {
+      backBtn.click();
+    }
+
+    // Focus on textarea when tool is open (/)
+    if (e.key === '/' && !toolView.classList.contains('hidden')) {
+      e.preventDefault();
+      toolInput.focus();
+    }
+  });
+}
+
+function updateActiveNavButton(category) {
+  navButtons.forEach(btn => {
+    btn.classList.remove('active');
+    btn.removeAttribute('aria-current');
+    if (btn.dataset.category === category) {
+      btn.classList.add('active');
+      btn.setAttribute('aria-current', 'page');
+    }
+  });
+}
+
+// Touch Gestures for Mobile
+function initTouchGestures() {
+  let touchStartX = 0;
+  let touchEndX = 0;
+  
+  // Swipe navigation for categories
+  document.addEventListener('touchstart', (e) => {
+    touchStartX = e.changedTouches[0].screenX;
+  }, { passive: true });
+  
+  document.addEventListener('touchend', (e) => {
+    touchEndX = e.changedTouches[0].screenX;
+    handleSwipe();
+  }, { passive: true });
+  
+  function handleSwipe() {
+    const swipeThreshold = 50;
+    const diff = touchStartX - touchEndX;
+    
+    // Only handle swipes on dashboard view
+    if (!toolView.classList.contains('hidden')) return;
+    
+    if (Math.abs(diff) > swipeThreshold) {
+      const categories = ['creadores', 'empleo', 'negocios'];
+      const currentCategory = document.querySelector('.nav-btn.active')?.dataset.category;
+      const currentIndex = categories.indexOf(currentCategory);
+      
+      if (diff > 0 && currentIndex < categories.length - 1) {
+        // Swipe left - next category
+        switchCategory(categories[currentIndex + 1]);
+        updateActiveNavButton(categories[currentIndex + 1]);
+      } else if (diff < 0 && currentIndex > 0) {
+        // Swipe right - previous category
+        switchCategory(categories[currentIndex - 1]);
+        updateActiveNavButton(categories[currentIndex - 1]);
+      }
+    }
+  }
+  
+  // Double tap to go back to dashboard
+  let lastTap = 0;
+  document.addEventListener('touchend', (e) => {
+    const currentTime = new Date().getTime();
+    const tapLength = currentTime - lastTap;
+    
+    if (tapLength < 300 && tapLength > 0) {
+      // Double tap detected
+      if (!toolView.classList.contains('hidden')) {
+        e.preventDefault();
+        backBtn.click();
+      }
+    }
+    lastTap = currentTime;
+  });
+  
+  // Long press for tool card context menu (additional info)
+  toolCards.forEach(card => {
+    let pressTimer;
+    
+    card.addEventListener('touchstart', () => {
+      pressTimer = setTimeout(() => {
+        showToolInfo(card.dataset.tool);
+      }, 500);
+    });
+    
+    card.addEventListener('touchend', () => {
+      clearTimeout(pressTimer);
+    });
+    
+    card.addEventListener('touchmove', () => {
+      clearTimeout(pressTimer);
+    });
+  });
+}
+
+function showToolInfo(toolId) {
+  const toolData = getToolData(toolId);
+  if (toolData) {
+    showToast('info', toolData.title, toolData.description, 4000);
+  }
+}
+
+// Form Validation
+function initFormValidation() {
+  toolInput.addEventListener('input', validateInput);
+  toolInput.addEventListener('blur', validateInput);
+}
+
+function validateInput() {
+  const value = toolInput.value;
+  const length = value.length;
+  const minLength = 10;
+  const maxLength = 5000;
+  
+  // Update character counter
+  charCounter.textContent = `${length}/${maxLength}`;
+  
+  // Update counter color based on length
+  charCounter.classList.remove('warning', 'error');
+  if (length > maxLength * 0.9) {
+    charCounter.classList.add('warning');
+  } else if (length >= maxLength) {
+    charCounter.classList.add('error');
+  }
+  
+  // Validate input
+  let isValid = true;
+  let errorMessage = '';
+  
+  if (length > 0 && length < minLength) {
+    isValid = false;
+    errorMessage = `Mínimo ${minLength} caracteres requeridos (${length}/${minLength})`;
+  } else if (length > maxLength) {
+    isValid = false;
+    errorMessage = `Máximo ${maxLength} caracteres excedido (${length}/${maxLength})`;
+  }
+  
+  // Update input styling
+  toolInput.classList.remove('valid', 'invalid');
+  if (length > 0) {
+    toolInput.classList.add(isValid ? 'valid' : 'invalid');
+  }
+  
+  // Update error message
+  if (errorMessage) {
+    inputError.textContent = errorMessage;
+    inputError.classList.add('visible');
+    inputHelp.style.display = 'none';
+  } else {
+    inputError.classList.remove('visible');
+    inputHelp.style.display = 'block';
+  }
+  
+  // Enable/disable generate button
+  generateBtn.disabled = !isValid || length === 0;
+  
+  return isValid;
 }
 
 // Get prompt for current tool (imported from prompts.js)
