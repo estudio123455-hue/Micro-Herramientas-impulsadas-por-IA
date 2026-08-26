@@ -150,15 +150,16 @@
                 placeholder="Ej: 3 trucos para ahorrar dinero trabajando como freelancer..."
                 rows="4"
                 aria-describedby="inputHelp inputError"
+                aria-label="Entrada de texto para generar contenido"
                 minlength="10"
                 maxlength="5000"
               ></textarea>
-              <div class="char-counter" id="charCounter">0/5000</div>
+              <div class="char-counter" id="charCounter" aria-live="polite">0/5000</div>
             </div>
             <div class="input-help" id="inputHelp">Mínimo 10 caracteres para generar contenido</div>
             <div class="input-error" id="inputError" role="alert" aria-live="polite"></div>
             
-            <button class="generate-btn" id="generateBtn" disabled>
+            <button class="generate-btn" id="generateBtn" disabled aria-label="Generar contenido con inteligencia artificial">
               <span class="btn-icon">✨</span>
               Generar con IA
             </button>
@@ -167,10 +168,16 @@
           <div class="result-container hidden" id="resultContainer">
             <div class="result-header">
               <h3>Resultado</h3>
-              <button class="copy-btn" id="copyBtn">
-                <span class="copy-icon">📋</span>
-                Copiar
-              </button>
+              <div class="result-actions">
+                <button class="copy-btn" id="copyBtn" aria-label="Copiar resultado al portapapeles">
+                  <span class="copy-icon">📋</span>
+                  Copiar
+                </button>
+                <button class="retry-btn" id="retryBtn" aria-label="Reintentar generación" style="display: none;">
+                  <span class="retry-icon">🔄</span>
+                  Reintentar
+                </button>
+              </div>
             </div>
             <div class="result-content" id="resultContent"></div>
           </div>

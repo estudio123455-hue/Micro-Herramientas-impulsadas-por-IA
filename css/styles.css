@@ -74,10 +74,21 @@ body {
 button:focus-visible,
 .tool-card:focus-visible,
 textarea:focus-visible,
-input:focus-visible {
-  outline: 2px solid var(--accent-primary);
+input:focus-visible,
+.api-input:focus-visible {
+  outline: 3px solid var(--accent-primary);
   outline-offset: 2px;
   border-radius: 4px;
+}
+
+/* Enhanced focus for interactive elements */
+.nav-btn:focus-visible,
+.generate-btn:focus-visible,
+.copy-btn:focus-visible,
+.upgrade-btn:focus-visible {
+  outline: 3px solid var(--accent-primary);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 6px rgba(99, 102, 241, 0.2);
 }
 
 /* Remove default outline when using focus-visible */
@@ -86,6 +97,24 @@ button:focus:not(:focus-visible),
 textarea:focus:not(:focus-visible),
 input:focus:not(:focus-visible) {
   outline: none;
+}
+
+/* High contrast focus for better visibility */
+@media (prefers-contrast: high) {
+  button:focus-visible,
+  .tool-card:focus-visible,
+  textarea:focus-visible,
+  input:focus-visible {
+    outline: 3px solid #000;
+    outline-offset: 2px;
+  }
+  
+  [data-theme="dark"] button:focus-visible,
+  [data-theme="dark"] .tool-card:focus-visible,
+  [data-theme="dark"] textarea:focus-visible,
+  [data-theme="dark"] input:focus-visible {
+    outline: 3px solid #fff;
+  }
 }
 
 /* App Container */
@@ -652,6 +681,48 @@ input:focus:not(:focus-visible) {
   font-size: 1rem;
 }
 
+.result-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.retry-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--border-color);
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border-radius: var(--btn-radius);
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: var(--transition);
+}
+
+.retry-btn:hover {
+  background: var(--accent-primary);
+  color: white;
+  border-color: var(--accent-primary);
+}
+
+.retry-icon {
+  font-size: 1rem;
+}
+
+.copy-btn.copied {
+  background: #10b981 !important;
+  color: white !important;
+  border-color: #10b981 !important;
+}
+
+.copy-btn.error {
+  background: #ef4444 !important;
+  color: white !important;
+  border-color: #ef4444 !important;
+}
+
 .result-content {
   background: var(--bg-tertiary);
   border: 1px solid var(--border-color);
@@ -664,6 +735,27 @@ input:focus:not(:focus-visible) {
   word-wrap: break-word;
   overflow-wrap: break-word;
   word-break: break-word;
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+/* Custom scrollbar for result content */
+.result-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.result-content::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+  border-radius: 4px;
+}
+
+.result-content::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+}
+
+.result-content::-webkit-scrollbar-thumb:hover {
+  background: var(--text-tertiary);
 }
 
 .error-message {
@@ -978,6 +1070,7 @@ input:focus:not(:focus-visible) {
 .generate-btn.loading {
   position: relative;
   pointer-events: none;
+  opacity: 0.8;
 }
 
 .generate-btn.loading::before {
@@ -988,16 +1081,38 @@ input:focus:not(:focus-visible) {
   width: 20px;
   height: 20px;
   margin: -10px 0 0 -10px;
-  border: 2px solid transparent;
+  border: 3px solid rgba(255, 255, 255, 0.3);
   border-top-color: white;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
+}
+
+.generate-btn.loading .btn-icon {
+  opacity: 0.3;
 }
 
 @keyframes spin {
   to {
     transform: rotate(360deg);
   }
+}
+
+/* Card Loading State */
+.tool-card.loading {
+  position: relative;
+  pointer-events: none;
+}
+
+.tool-card.loading::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(2px);
+  border-radius: var(--card-radius);
 }
 
 /* Success Animation */

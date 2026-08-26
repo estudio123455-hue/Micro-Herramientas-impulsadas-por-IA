@@ -19,6 +19,7 @@ const toolInput = document.getElementById('toolInput');
 const resultContainer = document.getElementById('resultContainer');
 const resultContent = document.getElementById('resultContent');
 const copyBtn = document.getElementById('copyBtn');
+const retryBtn = document.getElementById('retryBtn');
 
 // Toast Container
 const toastContainer = document.getElementById('toastContainer');
@@ -189,6 +190,7 @@ function openTool(toolId) {
     toolInput.value = '';
     resultContainer.classList.add('hidden');
     resultContent.textContent = '';
+    retryBtn.style.display = 'none'; // Hide retry button on tool switch
     
     // Update breadcrumb
     updateBreadcrumb(toolData);
@@ -359,6 +361,7 @@ function loadTheme() {
 // Generate Button
 function initGenerateButton() {
   generateBtn.addEventListener('click', () => generateContent(currentTool));
+  retryBtn.addEventListener('click', () => generateContent(currentTool));
 }
 
 // Main function to generate content using AI
@@ -366,12 +369,16 @@ async function generateContent(toolType) {
   const input = toolInput.value.trim();
   
   if (!input) {
-    alert('Por favor, completa el campo de texto antes de generar.');
+    showToast('error', 'Campo vacío', 'Por favor, completa el campo de texto antes de generar.');
+    toolInput.focus();
+    toolInput.classList.add('invalid');
+    inputError.textContent = 'El campo no puede estar vacío';
+    inputError.classList.add('visible');
     return;
   }
   
   if (!API_KEY) {
-    alert('Por favor, configura tu API Key primero. Haz clic en el icono ⚙️ en la esquina superior derecha.');
+    showToast('error', 'API Key requerida', 'Configura tu API Key en el icono ⚙️');
     openApiModal();
     return;
   }
@@ -420,6 +427,9 @@ async function generateContent(toolType) {
     generateBtn.innerHTML = '<span class="btn-icon">✅</span> Generado';
     showToast('success', '¡Éxito!', 'Contenido generado correctamente');
     
+    // Hide retry button on success
+    retryBtn.style.display = 'none';
+    
     setTimeout(() => {
       generateBtn.classList.remove('success');
       generateBtn.innerHTML = '<span class="btn-icon">✨</span> Generar con IA';
@@ -433,6 +443,9 @@ async function generateContent(toolType) {
     generateBtn.classList.remove('loading');
     generateBtn.classList.add('error');
     generateBtn.innerHTML = '<span class="btn-icon">❌</span> Error';
+    
+    // Show retry button
+    retryBtn.style.display = 'flex';
     
     setTimeout(() => {
       generateBtn.classList.remove('error');
@@ -623,15 +636,25 @@ Esta es una respuesta de prueba que confirma que:
   });
 }
 
-// Format response with proper line breaks
+// Format response with proper line breaks and markdown
 function formatResponse(text) {
   // Convert markdown-style formatting to HTML
   return text
     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // Bold
     .replace(/\*(.*?)\*/g, '<em>$1</em>') // Italic
+    .replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>') // Code blocks
+    .replace(/`([^`]+)`/g, '<code>$1</code>') // Inline code
+    .replace(/\n\n/g, '</p><p>') // Paragraphs
     .replace(/\n/g, '<br>') // Line breaks
     .replace(/^- (.*)$/gm, '<li>$1</li>') // Bullet points
-    .replace(/^(\d+)\. (.*)$/gm, '<strong>$1.</strong> $2'); // Numbered lists
+    .replace(/^(\d+)\. (.*)$/gm, '<strong>$1.</strong> $2') // Numbered lists
+    .replace(/^### (.*)$/gm, '<h3>$1</h3>') // Headers
+    .replace(/^## (.*)$/gm, '<h2>$1</h2>')
+    .replace(/^# (.*)$/gm, '<h1>$1</h1>')
+    .replace(/^(.+)$/gm, '<p>$1</p>') // Wrap remaining text in paragraphs
+    .replace(/<p><\/p>/g, '') // Remove empty paragraphs
+    .replace(/<p>(<h[1-6]>)/g, '$1') // Fix paragraph/header combinations
+    .replace(/(<\/h[1-6]>)<\/p>/g, '$1'); // Fix header/paragraph combinations
 }
 
 // Handle API errors with user-friendly messages
@@ -668,22 +691,30 @@ async function handleCopy() {
   try {
     await navigator.clipboard.writeText(textToCopy);
     
-    // Show feedback
-    const originalText = copyBtn.innerHTML;
-    copyBtn.innerHTML = '<span class="copy-icon">✅</span> Copiado';
-    copyBtn.style.background = 'var(--accent-primary)';
-    copyBtn.style.color = 'white';
-    copyBtn.style.borderColor = 'var(--accent-primary)';
+    // Show enhanced feedback
+    const originalHTML = copyBtn.innerHTML;
+    copyBtn.innerHTML = '<span class="copy-icon">✅</span> ¡Copiado! ✓';
+    copyBtn.classList.add('copied');
+    copyBtn.setAttribute('aria-label', 'Texto copiado al portapapeles');
+    
+    showToast('success', '¡Copiado!', 'El texto ha sido copiado al portapapeles');
     
     setTimeout(() => {
-      copyBtn.innerHTML = originalText;
-      copyBtn.style.background = '';
-      copyBtn.style.color = '';
-      copyBtn.style.borderColor = '';
+      copyBtn.innerHTML = originalHTML;
+      copyBtn.classList.remove('copied');
+      copyBtn.setAttribute('aria-label', 'Copiar al portapapeles');
     }, 2000);
   } catch (error) {
     console.error('Error copying to clipboard:', error);
-    alert('Error al copiar al portapapeles');
+    copyBtn.classList.add('error');
+    copyBtn.innerHTML = '<span class="copy-icon">❌</span> Error';
+    
+    setTimeout(() => {
+      copyBtn.classList.remove('error');
+      copyBtn.innerHTML = '<span class="copy-icon">📋</span> Copiar';
+    }, 2000);
+    
+    showToast('error', 'Error', 'No se pudo copiar al portapapeles');
   }
 }
 
@@ -692,12 +723,12 @@ function initPaywallModal() {
   paywallClose.addEventListener('click', hidePaywallModal);
   upgradeBtn.addEventListener('click', () => {
     // Simulate upgrade process
-    alert('🎉 ¡Gracias por tu interés en la versión PRO!\n\nEsta es una demo. En producción, aquí iría el proceso de pago real.');
+    showToast('info', 'Upgrade a PRO', '¡Gracias por tu interés! Esta es una demo de pago.');
     // For demo purposes, unlock PRO
     localStorage.setItem(PRO_USER_KEY, 'true');
     hidePaywallModal();
     updateUsageDisplay();
-    alert('✅ Versión PRO activada (demo) - ¡Generaciones ilimitadas!');
+    showToast('success', 'PRO Activado', 'Versión PRO activada (demo) - ¡Generaciones ilimitadas!');
   });
   
   // Reset usage button (for testing purposes)
@@ -706,7 +737,7 @@ function initPaywallModal() {
       localStorage.removeItem(USAGE_STORAGE_KEY);
       localStorage.removeItem(PRO_USER_KEY);
       updateUsageDisplay();
-      alert('✅ Contador reseteado - Tienes 3 generaciones gratuitas nuevamente.');
+      showToast('success', 'Contador reseteado', 'Tienes 3 generaciones gratuitas nuevamente.');
     }
   });
   
@@ -1007,7 +1038,7 @@ async function testApiConnection() {
   const testKey = apiKeyInput.value.trim();
   
   if (!testKey) {
-    alert('Por favor, ingresa una API Key para probar la conexión.');
+    showToast('error', 'API Key requerida', 'Ingresa una API Key para probar la conexión.');
     return;
   }
   
@@ -1035,7 +1066,7 @@ async function testApiConnection() {
         testApiBtn.disabled = false;
       }, 2000);
       
-      alert('✅ La API Key funciona correctamente. HTTP 200 OK recibido.');
+      showToast('success', 'Conexión exitosa', 'La API Key funciona correctamente. HTTP 200 OK recibido.');
     } else {
       throw new Error('La prueba de conexión falló');
     }
@@ -1053,7 +1084,7 @@ async function testApiConnection() {
       testApiBtn.disabled = false;
     }, 2000);
     
-    alert(`❌ Error de conexión: ${error.message}\n\nVerifica tu API Key e intenta nuevamente.`);
+    showToast('error', 'Error de conexión', `${error.message}. Verifica tu API Key e intenta nuevamente.`);
   } finally {
     // Restore original key
     API_KEY = originalKey;
@@ -1121,7 +1152,7 @@ function saveApiKey() {
     const newApiKey = apiKeyInput.value.trim();
     
     if (!newApiKey) {
-      alert('Por favor, ingresa una API Key válida o activa el modo de prueba.');
+      showToast('error', 'API Key requerida', 'Ingresa una API Key válida o activa el modo de prueba.');
       return;
     }
     
