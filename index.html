@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Tools Dashboard - Micro-Herramientas impulsadas por IA</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header / Navigation -->
+    <header class="header">
+      <div class="header-content">
+        <div class="logo">
+          <span class="logo-icon">🚀</span>
+          <h1>AI Tools</h1>
+        </div>
+        <nav class="nav">
+          <button class="nav-btn active" data-category="creadores">
+            <span class="nav-icon">🎬</span>
+            <span>Creadores</span>
+          </button>
+          <button class="nav-btn" data-category="empleo">
+            <span class="nav-icon">💼</span>
+            <span>Empleo</span>
+          </button>
+          <button class="nav-btn" data-category="negocios">
+            <span class="nav-icon">📈</span>
+            <span>Negocios</span>
+          </button>
+        </nav>
+        <button class="theme-toggle" id="themeToggle">
+          <span class="theme-icon">🌙</span>
+        </button>
+        <div class="usage-display" id="usageDisplay">
+          <span class="usage-count">3/3</span>
+          <span class="usage-text">hoy</span>
+        </div>
+        <button class="reset-usage-btn" id="resetUsageBtn" title="Resetear contador (solo pruebas)">
+          <span>🔄</span>
+        </button>
+        <button class="api-config-btn" id="apiConfigBtn" title="Configurar API Key">
+          <span class="api-icon">⚙️</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Dashboard View -->
+      <div id="dashboardView" class="dashboard-view">
+        <div class="category-section" id="creadores-section">
+          <h2 class="category-title">🎬 Creadores de Contenido</h2>
+          <div class="cards-grid">
+            <div class="tool-card" data-tool="script-generator">
+              <div class="card-icon">📝</div>
+              <h3>Generador de Guiones</h3>
+              <p>Crea guiones virales para TikTok, Reels y Shorts</p>
+              <span class="card-tag">Contenido</span>
+            </div>
+            <div class="tool-card" data-tool="hook-generator">
+              <div class="card-icon">🎣</div>
+              <h3>Generador de Hooks</h3>
+              <p>Ganchos irresistibles para captar atención</p>
+              <span class="card-tag">Marketing</span>
+            </div>
+            <div class="tool-card" data-tool="caption-generator">
+              <div class="card-icon">✍️</div>
+              <h3>Generador de Captions</h3>
+              <p>Captions engaging para tus publicaciones</p>
+              <span class="card-tag">Social Media</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="category-section hidden" id="empleo-section">
+          <h2 class="category-title">💼 Buscadores de Empleo</h2>
+          <div class="cards-grid">
+            <div class="tool-card" data-tool="cv-optimizer">
+              <div class="card-icon">📄</div>
+              <h3>Optimizador de CV</h3>
+              <p>Mejora tu CV para destacar en procesos</p>
+              <span class="card-tag">Carrera</span>
+            </div>
+            <div class="tool-card" data-tool="cover-letter">
+              <div class="card-icon">✉️</div>
+              <h3>Carta de Presentación</h3>
+              <p>Cartas personalizadas para cada vacante</p>
+              <span class="card-tag">Aplicación</span>
+            </div>
+            <div class="tool-card" data-tool="interview-prep">
+              <div class="card-icon">🎤</div>
+              <h3>Preparación de Entrevista</h3>
+              <p>Preguntas y respuestas para entrevistas</p>
+              <span class="card-tag">Entrevista</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="category-section hidden" id="negocios-section">
+          <h2 class="category-title">📈 Negocios y Ventas</h2>
+          <div class="cards-grid">
+            <div class="tool-card" data-tool="email-sales">
+              <div class="card-icon">📧</div>
+              <h3>Emails de Ventas</h3>
+              <p>Secuencias de email para convertir leads</p>
+              <span class="card-tag">Ventas</span>
+            </div>
+            <div class="tool-card" data-tool="pitch-deck">
+              <div class="card-icon">📊</div>
+              <h3>Pitch Deck</h3>
+              <p>Estructura para presentaciones de inversión</p>
+              <span class="card-tag">Startup</span>
+            </div>
+            <div class="tool-card" data-tool="value-proposition">
+              <div class="card-icon">💎</div>
+              <h3>Propuesta de Valor</h3>
+              <p>Define y comunica tu propuesta única</p>
+              <span class="card-tag">Estrategia</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tool View -->
+      <div id="toolView" class="tool-view hidden">
+        <button class="back-btn" id="backBtn">
+          <span>←</span> Volver al Dashboard
+        </button>
+        <div class="tool-container">
+          <div class="tool-header">
+            <div class="tool-icon-large" id="toolIcon">📝</div>
+            <h2 id="toolTitle">Generador de Guiones</h2>
+            <p id="toolDescription">Crea guiones virales para TikTok, Reels y Shorts</p>
+          </div>
+          
+          <div class="tool-form">
+            <label for="toolInput" id="inputLabel">¿De qué quieres hablar en tu video?</label>
+            <textarea 
+              id="toolInput" 
+              placeholder="Ej: 3 trucos para ahorrar dinero trabajando como freelancer..."
+              rows="4"
+            ></textarea>
+            
+            <button class="generate-btn" id="generateBtn">
+              <span class="btn-icon">✨</span>
+              Generar con IA
+            </button>
+          </div>
+
+          <div class="result-container hidden" id="resultContainer">
+            <div class="result-header">
+              <h3>Resultado</h3>
+              <button class="copy-btn" id="copyBtn">
+                <span class="copy-icon">📋</span>
+                Copiar
+              </button>
+            </div>
+            <div class="result-content" id="resultContent"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- API Key Configuration Modal -->
+  <div id="apiModal" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>⚙️ Configuración API</h3>
+        <button class="modal-close" id="modalClose">✕</button>
+      </div>
+      <div class="modal-body">
+        <label for="apiKeyInput">Google Gemini API Key:</label>
+        <input 
+          type="password" 
+          id="apiKeyInput" 
+          placeholder="Ingresa tu API Key de Google AI Studio"
+          class="api-input"
+        >
+        <p class="api-hint">
+          💡 Obtén tu API Key gratuita en: 
+          <a href="https://makersuite.google.com/app/apikey" target="_blank">Google AI Studio</a>
+        </p>
+        <div class="test-mode-section">
+          <label class="checkbox-label">
+            <input type="checkbox" id="testMode">
+            <span>Modo de prueba (sin consumo de API)</span>
+          </label>
+        </div>
+        <div class="api-buttons">
+          <button class="save-api-btn" id="saveApiBtn">Guardar API Key</button>
+          <button class="test-api-btn" id="testApiBtn">🧪 Probar Conexión</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Paywall Modal -->
+  <div id="paywallModal" class="modal hidden">
+    <div class="modal-content paywall-content">
+      <div class="paywall-header">
+        <div class="paywall-icon">🚀</div>
+        <h2>¡Límite diario alcanzado!</h2>
+        <button class="modal-close" id="paywallClose">✕</button>
+      </div>
+      <div class="paywall-body">
+        <p class="paywall-message">
+          Has utilizado tus <strong>3 generaciones gratuitas</strong> de hoy.
+        </p>
+        <div class="paywall-features">
+          <div class="feature-item">
+            <span class="feature-icon">✅</span>
+            <span>Generaciones ilimitadas</span>
+          </div>
+          <div class="feature-item">
+            <span class="feature-icon">✅</span>
+            <span>Acceso a todos los modelos premium</span>
+          </div>
+          <div class="feature-item">
+            <span class="feature-icon">✅</span>
+            <span>Soporte prioritario</span>
+          </div>
+          <div class="feature-item">
+            <span class="feature-icon">✅</span>
+            <span>Nuevas herramientas primero</span>
+          </div>
+        </div>
+        <div class="paywall-price">
+          <span class="price-amount">$9.99</span>
+          <span class="price-period">/mes</span>
+        </div>
+        <button class="upgrade-btn" id="upgradeBtn">
+          <span class="btn-icon">⚡</span>
+          Actualizar a PRO
+        </button>
+        <p class="paywall-guarantee">
+          💳 Cancela cuando quieras • Garantía de 7 días
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/prompts.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
