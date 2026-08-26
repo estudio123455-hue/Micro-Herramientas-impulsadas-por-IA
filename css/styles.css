@@ -265,7 +265,7 @@ body {
 /* Cards Grid */
 .cards-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 1.5rem;
 }
 
@@ -531,6 +531,8 @@ body {
   line-height: 1.7;
   white-space: pre-wrap;
   word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .error-message {
@@ -569,7 +571,46 @@ body {
 }
 
 /* Responsive Design */
-@media (max-width: 768px) {
+
+/* PC Desktop (1024px+) - Default styles already handle 3 columns */
+@media (min-width: 1024px) {
+  .cards-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+  }
+
+  .main-content {
+    padding: 3rem 2rem;
+  }
+
+  .category-section {
+    margin-bottom: 4rem;
+  }
+}
+
+/* Tablets (768px - 1023px) */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+
+  .main-content {
+    padding: 2rem 1.5rem;
+  }
+
+  .category-section {
+    margin-bottom: 3rem;
+  }
+
+  .header-content {
+    gap: 1.5rem;
+  }
+}
+
+/* Mobile Devices (< 768px) */
+@media (max-width: 767px) {
+  /* Header adjustments */
   .header {
     padding: 1rem;
   }
@@ -579,36 +620,56 @@ body {
     gap: 1rem;
   }
 
+  /* Navigation with horizontal scroll */
   .nav {
     width: 100%;
-    justify-content: space-between;
+    overflow-x: auto;
+    justify-content: flex-start;
+    gap: 0.5rem;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; /* Firefox */
+  }
+
+  .nav::-webkit-scrollbar {
+    display: none; /* Chrome/Safari */
   }
 
   .nav-btn {
-    flex: 1;
+    flex: 0 0 auto;
     justify-content: center;
-    padding: 0.5rem 0.75rem;
+    padding: 0.75rem 1rem;
     font-size: 0.85rem;
+    min-width: 80px;
   }
 
   .nav-btn span:not(.nav-icon) {
-    display: none;
+    display: inline;
   }
 
   .nav-icon {
-    font-size: 1.5rem;
+    font-size: 1.25rem;
   }
 
+  /* Usage display adjustments */
+  .usage-display {
+    font-size: 0.75rem;
+    padding: 0.4rem 0.8rem;
+  }
+
+  /* Main content */
   .main-content {
     padding: 1rem;
   }
 
+  /* Cards grid - single column */
   .cards-grid {
     grid-template-columns: 1fr;
+    gap: 1rem;
   }
 
+  /* Tool container */
   .tool-container {
-    padding: 1.5rem;
+    padding: 1.25rem;
   }
 
   .tool-header h2 {
@@ -622,23 +683,111 @@ body {
   .category-title {
     font-size: 1.5rem;
   }
-}
 
-@media (max-width: 480px) {
+  /* Touch-friendly buttons and inputs (minimum 44px height) */
+  button,
+  .nav-btn,
+  .generate-btn,
+  .copy-btn,
+  .back-btn,
+  .save-api-btn,
+  .test-api-btn,
+  .upgrade-btn,
+  .theme-toggle,
+  .api-config-btn,
+  .reset-usage-btn {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Textarea with touch-friendly size */
+  textarea,
+  .tool-form textarea,
+  .api-input {
+    min-height: 120px;
+    font-size: 16px; /* Prevents iOS zoom */
+  }
+
+  /* Modal adjustments */
+  .modal-content {
+    max-width: 95%;
+    padding: 1.5rem;
+  }
+
+  .paywall-content {
+    max-width: 100%;
+  }
+
+  /* Logo adjustments */
   .logo h1 {
     font-size: 1.25rem;
   }
 
-  .nav-btn {
-    padding: 0.5rem;
-  }
-
+  /* Tool card adjustments */
   .tool-card {
     padding: 1.25rem;
   }
 
-  .tool-form textarea {
-    font-size: 0.95rem;
+  /* Ensure no horizontal scroll on body */
+  body {
+    overflow-x: hidden;
+  }
+
+  .app-container {
+    overflow-x: hidden;
+  }
+}
+
+/* Small mobile devices (< 480px) */
+@media (max-width: 479px) {
+  .logo h1 {
+    font-size: 1.1rem;
+  }
+
+  .nav-btn {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8rem;
+    min-width: 70px;
+  }
+
+  .tool-card {
+    padding: 1rem;
+  }
+
+  .card-icon {
+    font-size: 2rem;
+  }
+
+  .tool-card h3 {
+    font-size: 1.1rem;
+  }
+
+  .tool-card p {
+    font-size: 0.85rem;
+  }
+
+  .tool-header h2 {
+    font-size: 1.25rem;
+  }
+
+  .tool-icon-large {
+    font-size: 2.5rem;
+  }
+
+  .category-title {
+    font-size: 1.25rem;
+  }
+
+  /* Additional touch optimization */
+  .result-header {
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: flex-start;
+  }
+
+  .copy-btn {
+    width: 100%;
+    justify-content: center;
   }
 }
 
