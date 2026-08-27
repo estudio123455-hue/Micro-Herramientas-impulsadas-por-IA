@@ -5,7 +5,7 @@ Dashboard SaaS responsive con herramientas de IA impulsadas por Google Gemini pa
 ## 🚀 Características
 
 - **9 Herramientas de IA** especializadas en 3 categorías
-- **Integración con Google Gemini API** (gemini-3.6-flash)
+- **Integración con Google Gemini API** (gemini-1.5-flash)
 - **Sistema Paywall** con límite diario gratuito (3 generaciones/día)
 - **Diseño responsive** y moderno con tema claro/oscuro
 - **Sin dependencias** - HTML5, CSS3, JavaScript vanilla
@@ -17,9 +17,14 @@ Micro-Herramientas-impulsadas-por-IA/
 ├── index.html          # Estructura principal
 ├── css/
 │   └── styles.css      # Estilos responsive
-└── js/
-    ├── app.js          # Lógica de la aplicación
-    └── prompts.js      # System prompts para IA
+├── js/
+│   ├── app.js          # Lógica de la aplicación
+│   └── prompts.js      # System prompts + schemas JSON
+└── assets/
+    ├── guides/         # Guías de uso
+    ├── infographics/   # Diagramas
+    ├── subtitles/      # Subtítulos VTT
+    └── videos/         # Video demo (opcional)
 ```
 
 ## 🛠️ Herramientas Disponibles
@@ -47,12 +52,11 @@ Micro-Herramientas-impulsadas-por-IA/
    cd Micro-Herramientas-impulsadas-por-IA
    ```
 
-2. **Obtén tu API Key** de [Google AI Studio](https://makersuite.google.com/app/apikey)
+2. **Obtén tu API Key** de [Google AI Studio](https://aistudio.google.com/apikey)
 
 3. **Configura la API Key**:
-   - Abre `js/app.js`
-   - Reemplaza `AIzaSyABCW7Pn61txGF4tOR_rlGTjOV5cqmYI7o` con tu API Key
-   - O usa el modal de configuración en la interfaz
+   - Usa el botón ⚙️ en la interfaz, o
+   - Activa el **modo de prueba** para probar sin consumir cuota
 
 4. **Inicia un servidor local**:
    ```bash
@@ -75,7 +79,7 @@ Micro-Herramientas-impulsadas-por-IA/
 - **HTML5**: Estructura semántica
 - **CSS3**: Variables, Flexbox, Grid, Animaciones
 - **JavaScript ES6+**: async/await, fetch, localStorage
-- **Google Gemini API**: gemini-3.6-flash
+- **Google Gemini API**: gemini-1.5-flash
 
 ## 📝 Sistema de Prompts
 

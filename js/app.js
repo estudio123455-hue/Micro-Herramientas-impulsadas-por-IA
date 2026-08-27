@@ -1,5 +1,5 @@
 // Configuration - API Key will be loaded from localStorage
-let API_KEY = localStorage.getItem('gemini_api_key') || 'AIzaSyABCW7Pn61txGF4tOR_rlGTjOV5cqmYI7o';
+let API_KEY = localStorage.getItem('gemini_api_key') || '';
 
 // Usage tracking configuration
 const DAILY_LIMIT = 3;
@@ -38,6 +38,13 @@ const paywallModal = document.getElementById('paywallModal');
 const paywallClose = document.getElementById('paywallClose');
 const upgradeBtn = document.getElementById('upgradeBtn');
 const resetUsageBtn = document.getElementById('resetUsageBtn');
+
+// Demo Elements
+const demoSteps = document.getElementById('demoSteps');
+const prevStepBtn = document.getElementById('prevStepBtn');
+const nextStepBtn = document.getElementById('nextStepBtn');
+let currentDemoStep = 1;
+const totalDemoSteps = 4;
 
 // Tool elements
 const toolIcon = document.getElementById('toolIcon');
@@ -135,9 +142,68 @@ document.addEventListener('DOMContentLoaded', () => {
   initKeyboardShortcuts();
   initFormValidation();
   initTouchGestures();
+  initDemoSteps();
+  initVideoFallback();
   loadTheme();
   updateUsageDisplay();
 });
+
+// Interactive demo (tutorial)
+function initDemoSteps() {
+  if (!prevStepBtn || !nextStepBtn || !demoSteps) return;
+
+  const updateDemoUI = () => {
+    const steps = demoSteps.querySelectorAll('.demo-step');
+    steps.forEach((step) => {
+      const stepNum = Number(step.dataset.step);
+      step.classList.toggle('active', stepNum === currentDemoStep);
+    });
+    prevStepBtn.disabled = currentDemoStep <= 1;
+    nextStepBtn.disabled = currentDemoStep >= totalDemoSteps;
+  };
+
+  prevStepBtn.addEventListener('click', () => {
+    if (currentDemoStep > 1) {
+      currentDemoStep -= 1;
+      updateDemoUI();
+    }
+  });
+
+  nextStepBtn.addEventListener('click', () => {
+    if (currentDemoStep < totalDemoSteps) {
+      currentDemoStep += 1;
+      updateDemoUI();
+    }
+  });
+
+  updateDemoUI();
+}
+
+function initVideoFallback() {
+  const video = document.getElementById('tutorialVideo');
+  const fallback = document.getElementById('videoFallback');
+  if (!video || !fallback) return;
+
+  const showFallback = () => {
+    video.style.display = 'none';
+    fallback.hidden = false;
+  };
+
+  video.addEventListener('error', showFallback, true);
+  video.querySelector('source')?.addEventListener('error', showFallback);
+
+  video.addEventListener('loadeddata', () => {
+    fallback.hidden = true;
+    video.style.display = 'block';
+  });
+
+  // Si el mp4 no existe, mostrar fallback sin dejar un reproductor vacío
+  fetch('assets/videos/demo-herramienta-ia.mp4', { method: 'HEAD' })
+    .then((res) => {
+      if (!res.ok) showFallback();
+    })
+    .catch(showFallback);
+}
 
 // Navigation
 function initNavigation() {
@@ -171,6 +237,13 @@ function initToolCards() {
       const toolId = card.dataset.tool;
       openTool(toolId);
     });
+
+    card.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        openTool(card.dataset.tool);
+      }
+    });
   });
 }
 
@@ -191,12 +264,14 @@ function openTool(toolId) {
     resultContainer.classList.add('hidden');
     resultContent.textContent = '';
     retryBtn.style.display = 'none'; // Hide retry button on tool switch
+    validateInput();
     
     // Update breadcrumb
     updateBreadcrumb(toolData);
     
     // Switch views
     dashboardView.classList.add('hidden');
+    document.getElementById('tutorialSection')?.classList.add('hidden');
     toolView.classList.remove('hidden');
     
     // Scroll to top
@@ -231,6 +306,7 @@ function updateBreadcrumb(toolData) {
 function goToDashboard() {
   toolView.classList.add('hidden');
   dashboardView.classList.remove('hidden');
+  document.getElementById('tutorialSection')?.classList.remove('hidden');
   currentTool = null;
   
   breadcrumb.innerHTML = `
@@ -249,6 +325,10 @@ function goToCategory(category) {
   
   const categoryId = categoryMap[category];
   if (categoryId) {
+    toolView.classList.add('hidden');
+    dashboardView.classList.remove('hidden');
+    document.getElementById('tutorialSection')?.classList.remove('hidden');
+    currentTool = null;
     switchCategory(categoryId);
     updateActiveNavButton(categoryId);
     
@@ -257,6 +337,8 @@ function goToCategory(category) {
       <span class="breadcrumb-separator">›</span>
       <span class="breadcrumb-item active">${category}</span>
     `;
+    
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 }
 
@@ -333,9 +415,7 @@ function getToolData(toolId) {
 // Back Button
 function initBackButton() {
   backBtn.addEventListener('click', () => {
-    toolView.classList.add('hidden');
-    dashboardView.classList.remove('hidden');
-    currentTool = null;
+    goToDashboard();
   });
 }
 
@@ -390,12 +470,9 @@ async function generateContent(toolType) {
     return;
   }
   
-  // Show remaining uses to user
-  if (limitCheck.remaining <= 1) {
-    const confirmContinue = confirm(`⚠️ ¡Última generación gratuita del día!\n\nUsos restantes hoy: ${limitCheck.remaining}/${limitCheck.limit}\n\n¿Continuar?`);
-    if (!confirmContinue) {
-      return;
-    }
+  // Show remaining uses to user (toast, no native confirm)
+  if (limitCheck.remaining <= 1 && limitCheck.remaining !== Infinity) {
+    showToast('info', 'Última generación gratis', `Te queda ${limitCheck.remaining} de ${limitCheck.limit} hoy.`, 4000);
   }
   
   // Check if using test mode
@@ -411,15 +488,16 @@ async function generateContent(toolType) {
   resultContent.textContent = 'Generando respuesta con IA...';
   
   try {
-    const systemPrompt = getPromptForTool(toolType);
-    const response = await callGeminiAPI(systemPrompt, input);
+    const inputs = getInputsForTool(toolType, input);
+    const payload = window.construirPeticion(toolType, inputs);
+    const response = await callGeminiAPI(payload, toolType);
     
     // Increment usage counter after successful generation
     incrementUsage();
     updateUsageDisplay();
     
-    // Format response with proper line breaks
-    resultContent.innerHTML = formatResponse(response);
+    // Format response (now it's JSON)
+    resultContent.innerHTML = formatJsonResponse(response);
     
     // Show success feedback
     generateBtn.classList.remove('loading');
@@ -456,53 +534,33 @@ async function generateContent(toolType) {
   }
 }
 
-async function callGeminiAPI(systemPrompt, userInput) {
+async function callGeminiAPI(payload, toolType = null) {
   // Test mode: if API key contains "TEST", return simulated response
   if (API_KEY === 'TEST_MODE') {
-    return simulateAIResponse(systemPrompt, userInput);
+    return simulateAIResponse(toolType || currentTool, payload);
   }
   
-  const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${API_KEY}`;
-  
-  console.log('🔍 Llamando a API:', apiUrl);
-  console.log('📝 Prompt length:', systemPrompt.length + userInput.length);
+  const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
   
   try {
     const response = await fetch(apiUrl, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'x-goog-api-key': API_KEY
+        'Content-Type': 'application/json'
       },
-      body: JSON.stringify({
-        contents: [{
-          parts: [{
-            text: `${systemPrompt}\n\nEntrada del usuario: ${userInput}`
-          }]
-        }]
-      })
+      body: JSON.stringify(payload)
     });
-    
-    console.log('📊 Status HTTP:', response.status, response.statusText);
     
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      console.error('❌ Error API:', errorData);
-      
-      // Detailed error information
-      const errorMessage = errorData.error?.message || response.statusText;
-      const errorDetails = errorData.error?.details || [];
-      
-      throw new Error(`HTTP Error ${response.status}: ${errorMessage}\nDetalles: ${JSON.stringify(errorDetails)}`);
+      throw new Error(`HTTP Error ${response.status}: ${errorData.error?.message || response.statusText}`);
     }
     
     const data = await response.json();
-    console.log('✅ Respuesta API recibida:', data);
     
     if (data.candidates && data.candidates[0] && data.candidates[0].content) {
-      const generatedText = data.candidates[0].content.parts[0].text;
-      console.log('📝 Texto generado:', generatedText.substring(0, 100) + '...');
-      return generatedText;
+      const rawText = data.candidates[0].content.parts[0].text;
+      return parseModelJson(rawText);
     }
     
     throw new Error('Formato de respuesta inválido de la API');
@@ -513,127 +571,205 @@ async function callGeminiAPI(systemPrompt, userInput) {
   }
 }
 
-// Simulate AI response for testing purposes
-function simulateAIResponse(systemPrompt, userInput) {
-  // Simulate network delay
+function parseModelJson(rawText) {
+  const trimmed = String(rawText || '').trim();
+  try {
+    return JSON.parse(trimmed);
+  } catch (_) {
+    const fenced = trimmed.match(/```(?:json)?\s*([\s\S]*?)```/i);
+    if (fenced) {
+      return JSON.parse(fenced[1].trim());
+    }
+    const start = trimmed.indexOf('{');
+    const end = trimmed.lastIndexOf('}');
+    if (start !== -1 && end !== -1 && end > start) {
+      return JSON.parse(trimmed.slice(start, end + 1));
+    }
+    throw new Error('La API no devolvió JSON válido');
+  }
+}
+
+function getInputsForTool(toolId, input) {
+  const text = input.trim();
+  switch (toolId) {
+    case 'script-generator':
+    case 'hook-generator':
+      return { tema: text };
+    case 'caption-generator':
+      return { contenido: text, tema: text };
+    case 'cv-optimizer':
+      return { cv: text, oferta: text };
+    case 'cover-letter':
+    case 'interview-prep':
+      return { oferta: text, perfil: text };
+    case 'email-sales':
+      return { producto: text, destinatario: text };
+    case 'pitch-deck':
+      return { negocio: text };
+    case 'value-proposition':
+      return { producto: text, negocio: text };
+    default:
+      return { tema: text };
+  }
+}
+
+function formatJsonResponse(data) {
+  if (!data || typeof data !== 'object') {
+    return `<div class="ai-response-content"><p>${escapeHtml(String(data ?? ''))}</p></div>`;
+  }
+
+  let html = '<div class="ai-response-content">';
+
+  for (const [key, value] of Object.entries(data)) {
+    const label = key.replace(/_/g, ' ').toUpperCase();
+
+    if (Array.isArray(value)) {
+      html += `<div class="response-section"><h3>${escapeHtml(label)}</h3><ul>`;
+      value.forEach((item) => {
+        if (item && typeof item === 'object') {
+          html += `<li>${formatObjectLines(item)}</li>`;
+        } else {
+          html += `<li>${escapeHtml(String(item))}</li>`;
+        }
+      });
+      html += '</ul></div>';
+    } else if (value && typeof value === 'object') {
+      html += `<div class="response-section"><h3>${escapeHtml(label)}</h3>${formatObjectLines(value, true)}</div>`;
+    } else {
+      html += `<div class="response-section"><h3>${escapeHtml(label)}</h3><p>${escapeHtml(String(value ?? ''))}</p></div>`;
+    }
+  }
+
+  html += '</div>';
+  return html;
+}
+
+function formatObjectLines(obj, asParagraphs = false) {
+  return Object.entries(obj).map(([k, v]) => {
+    let rendered;
+    if (Array.isArray(v)) {
+      rendered = v.map((item) => (typeof item === 'object' ? JSON.stringify(item) : String(item))).join(', ');
+    } else if (v && typeof v === 'object') {
+      rendered = Object.entries(v).map(([sk, sv]) => `${sk}: ${sv}`).join(' · ');
+    } else {
+      rendered = String(v ?? '');
+    }
+    const line = `<strong>${escapeHtml(k)}:</strong> ${escapeHtml(rendered)}`;
+    return asParagraphs ? `<p>${line}</p>` : line;
+  }).join(asParagraphs ? '' : ' | ');
+}
+
+function escapeHtml(text) {
+  return String(text)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+// Simulate AI response for testing purposes (JSON aligned with prompts.js schemas)
+function simulateAIResponse(toolType) {
   return new Promise((resolve) => {
     setTimeout(() => {
-      // Determine response based on system prompt content
-      if (systemPrompt.includes('guion') || systemPrompt.includes('TikTok')) {
-        resolve(`**GANCHO (Primeros 3 segundos):** "¡Deja de perder dinero en estas 3 cosas estúpidas!"
-
-**CUERPO (3 puntos clave):**
-- Punto 1: ${userInput.substring(0, 50)}... (explicación visual con datos concretos)
-- Punto 2: La mayoría gasta el 40% más sin darse cuenta (mostrar gráfico)
-- Punto 3: Aquí está el truco que nadie te cuenta (demostración en pantalla)
-
-**LLAMADO A LA ACCIÓN (CTA):** Guarda este video y compártelo con ese amigo que siempre está quebrado.
-
-**SUGERENCIA VISUAL:** Primer plano cara seriosa, luego cortes rápidos a ejemplos visuales con texto grande en pantalla.`);
-      } else if (systemPrompt.includes('CV') || systemPrompt.includes('ATS')) {
-        resolve(`**RESUMEN EJECUTIVO:** Profesional con experiencia destacada en ${userInput.substring(0, 30)}..., especializado en optimización de procesos y resultados medibles.
-
-**PALABRAS CLAVE ATS:** ${userInput.substring(0, 20).split(' ')[0]}, gestión, optimización, análisis, liderazgo, resultados, KPI, estratégico, innovación, eficiencia.
-
-**MEJORAS SUGERIDAS:**
-- Añadir métricas cuantificables en cada experiencia
-- Usar verbos de acción al inicio de cada viñeta
-- Incluir sección de habilidades técnicas con nivel de dominio
-
-**LOGROS CUANTIFICABLES:** "Aumenté eficiencia un 25%" → "Implementé sistema que redujo tiempos un 25%, ahorrando $50k anuales."
-
-**VIÑETAS PROFESIONALES:**
-• Lideré equipo de 10 personas, alcanzando 120% de objetivos trimestrales
-• Desarrolló estrategia que incrementó conversión 35% en 6 meses
-• Optimizó procesos reduciendo costos operativos 20%`);
-      } else if (systemPrompt.includes('email') || systemPrompt.includes('ventas')) {
-        resolve(`**EMAIL 1: Value-driven + CTA suave**
-Asunto: ${userInput.substring(0, 20)}... (solicitud de conexión)
-
-Hola [Nombre],
-
-Noté que ${userInput.substring(0, 40)}... y pensé que podría ser relevante para ti.
-
-He ayudado a empresas similares a lograr [X resultado] en [Y tiempo].
-
-¿Te interesaría conocer más?
-
-Saludos,
-[Tu nombre]
-
-**EMAIL 2: Storytelling + prueba social**
-Asunto: Cómo [Cliente similar] logró [Resultado]
-
-Hola [Nombre],
-
-Recientemente trabajé con [Empresa] que tenía el mismo desafío que tú.
-
-Implementamos [Solución] y lograron: 
-• +40% conversión
-• -30% costos
-• 2x más leads
-
-¿Te gustaría ver el caso completo?
-
-**EMAIL 3: Objection handling + FAQs**
-Asunto: La verdad sobre [Tema común]
-
-Hola [Nombre],
-
-Muchos me preguntan si [Objeción común].
-
-La realidad: [Respuesta honesta con datos].
-
-Aquí están las preguntas más frecuentes:
-• ¿Funciona para [Tu industria]? Sí, porque...
-• ¿Cuánto tiempo toma? Generalmente [X tiempo]...
-• ¿Qué incluye? [Detalles específicos]
-
-¿Tienes alguna otra duda?
-
-**EMAIL 4: Urgency + escasez**
-Asunto: Últimas plazas para [Mes/Trimestre]
-
-Hola [Nombre],
-
-Este mes estoy aceptando solo 3 nuevos clientes.
-
-Actualmente tengo 2 reservados, leaving 1 spot disponible.
-
-Si quieres resultados como [Cliente], este es el momento.
-
-¿Te interesa reservar tu lugar?
-
-**EMAIL 5: Break-up email**
-Asunto: ¿Seguimos en contacto?
-
-Hola [Nombre],
-
-No he recibido respuesta, así que asumo que ahora no es el momento adecuado.
-
-Entiendo perfectamente -时机 tiene que ser el correcto.
-
-Si algo cambia en el futuro, estaré aquí para ayudarte.
-
-¡Mucho éxito con [Tu proyecto]!`);
-      } else {
-        resolve(`**Respuesta simulada para:** ${userInput}
-
-Esta es una respuesta de prueba que confirma que:
-✅ La función generateContent() funciona correctamente
-✅ El sistema de prompts está integrado
-✅ El formateo de respuestas opera adecuadamente
-✅ El manejo de loading states funciona
-
-**Para usar la API real:**
-1. Haz clic en el icono ⚙️ en la esquina superior derecha
-2. Ingresa tu API Key de Google AI Studio
-3. La función llamará a la API de Gemini real
-
-**Nota:** Esta simulación usa "TEST_MODE" como API Key para pruebas sin consumo.`);
-      }
-    }, 1500); // Simulate 1.5s delay
+      resolve(getMockResponse(toolType));
+    }, 800);
   });
+}
+
+function getMockResponse(toolType) {
+  const mocks = {
+    'script-generator': {
+      hook: 'Deja de perder 2 horas al día en tareas que ya puedes automatizar.',
+      justificacion_hook: 'Promete un beneficio concreto sin contexto previo.',
+      beats: [
+        { rango: '0-3s', voz: 'Si trabajas solo, esto te va a doler.', visual: 'Primer plano serio a cámara', texto_pantalla: '2h/día' },
+        { rango: '3-8s', voz: 'La mayoría pierde tiempo copiando datos entre apps.', visual: 'Pantalla con tabs abiertas', texto_pantalla: 'Copia / pega' },
+        { rango: '8-15s', voz: 'Conecta una sola herramienta y recupera ese bloque.', visual: 'Demo rápida del flujo', texto_pantalla: '1 flujo' },
+      ],
+      cta: 'Guarda el video y pruébalo mañana a primera hora.',
+      sugerencia_audio: 'Beat energético sin letra',
+      duracion_estimada: '15s',
+    },
+    'hook-generator': {
+      hooks: [
+        { texto: 'El error que te hace perder clientes en silencio', angulo: 'error', por_que_funciona: 'Amenaza concreta', riesgo: 'Si no explicas el error, suena clickbait' },
+        { texto: 'Hice esto 7 días y cambió mi cierre', angulo: 'historia', por_que_funciona: 'Promesa de prueba', riesgo: 'Sin prueba real pierde credibilidad' },
+        { texto: 'Nadie te dijo esto sobre vender por DM', angulo: 'curiosidad', por_que_funciona: 'Brecha de información', riesgo: 'Si el tip es obvio, baja retención' },
+      ],
+    },
+    'caption-generator': {
+      variantes: [
+        { longitud: 'corta', primera_linea: 'Esto me hubiera ahorrado meses.', cuerpo: 'Una decisión simple cambió mi ritmo de trabajo.', pregunta_final: '¿Tú ya lo usas?' },
+        { longitud: 'media', primera_linea: 'Dejé de improvisar mis captions.', cuerpo: 'Ahora escribo primero la línea que se ve antes del “ver más”. El resto solo sostiene la conversación.', pregunta_final: '¿Cuál es tu truco?' },
+        { longitud: 'larga', primera_linea: 'Antes publicaba y nadie respondía.', cuerpo: 'Cambié el orden: gancho, prueba corta y una pregunta fácil. En una semana subieron los comentarios.', pregunta_final: '¿Te ayudo con el tuyo?' },
+      ],
+      hashtags: { amplios: ['marketing', 'contenido', 'emprendimiento'], de_nicho: ['captions', 'reelstips', 'communitymanager', 'copywriting', 'crecimientoig'], de_marca: ['aitools', 'microherramientas'] },
+    },
+    'cv-optimizer': {
+      titular_profesional: 'Especialista en operaciones digitales con foco en eficiencia',
+      resumen: 'Perfil orientado a resultados medibles y procesos claros. [MÉTRICA: impacto cuantificable reciente]',
+      viñetas_reescritas: [
+        { original: 'Responsable de mejorar procesos', reescrita: 'Rediseñé el flujo operativo con [herramienta], reduciendo tiempos de [MÉTRICA: % o horas]', que_cambio: 'Añade verbo + medio + resultado' },
+      ],
+      palabras_clave_presentes: ['gestión', 'procesos'],
+      palabras_clave_faltantes: ['KPI', 'automatización', 'stakeholders'],
+      problemas_de_formato: ['Evita tablas complejas para ATS', 'Usa viñetas simples'],
+      puntuacion_estimada: 72,
+    },
+    'cover-letter': {
+      apertura: 'Vi que buscan a alguien que ordene el caos operativo sin frenar al equipo.',
+      parrafos_evidencia: [
+        { requisito_de_la_oferta: 'Mejora de procesos', prueba_del_candidato: '[DATO: ejemplo real del candidato]', parrafo: 'En mi último rol ordené el flujo de [proceso] y dejé documentado un estándar usable por todo el equipo.' },
+      ],
+      cierre: 'Me gustaría conversar sobre cómo aplicar este enfoque en su equipo.',
+      carta_completa: 'Vi que buscan a alguien que ordene el caos operativo sin frenar al equipo.\n\nEn mi último rol ordené el flujo de [proceso] y dejé documentado un estándar usable por todo el equipo.\n\nMe gustaría conversar sobre cómo aplicar este enfoque en su equipo.',
+    },
+    'interview-prep': {
+      preguntas: [
+        {
+          pregunta: 'Cuéntame un proceso que mejoraste de punta a punta.',
+          tipo: 'conductual',
+          esqueleto_star: { situacion: 'Había cuellos de botella en [área]', tarea: 'Reducir tiempos sin perder calidad', accion: 'Mapeé el flujo y eliminé pasos redundantes', resultado: '[MÉTRICA: resultado]' },
+          repregunta: '¿Qué harías diferente hoy?',
+          error_frecuente: 'Hablar en plural sin explicar tu rol concreto',
+        },
+      ],
+      preguntas_para_hacer_tu: ['¿Cómo miden el éxito en los primeros 90 días?', '¿Cuál es el mayor cuello de botella actual del equipo?'],
+    },
+    'email-sales': {
+      asuntos: [
+        { texto: 'Idea rápida para [empresa]', enfoque: 'valor' },
+        { texto: '¿Esto les está pasando?', enfoque: 'dolor' },
+      ],
+      cuerpo: 'Hola [Nombre],\n\nVi que están creciendo el equipo y suele aparecer fricción en [proceso]. Ayudamos a equipos similares a ordenarlo sin sumar software de más.\n\n¿Te sirve si te mando un ejemplo de 2 minutos?',
+      cta: '¿Te parece bien el jueves a las 10?',
+      seguimientos: [
+        { dia: 'Día 3', texto: 'Te dejo el ejemplo corto por si no lo viste.' },
+        { dia: 'Día 7', texto: 'Cierro el hilo por ahora. Si encaja más adelante, aquí estoy.' },
+      ],
+    },
+    'pitch-deck': {
+      diapositivas: [
+        { numero: 1, titulo: 'Problema', mensaje_unico: 'El dolor es caro y frecuente', contenido: ['Quién lo sufre', 'Con qué frecuencia', 'Qué cuesta hoy'], datos_que_necesitas: ['Tamaño de mercado', 'Costo actual del problema'] },
+        { numero: 2, titulo: 'Solución', mensaje_unico: 'Producto simple que elimina el dolor', contenido: ['Cómo funciona', 'Por qué ahora'], datos_que_necesitas: ['Demo o captura'] },
+        { numero: 3, titulo: 'Mercado', mensaje_unico: 'Oportunidad concreta', contenido: ['TAM/SAM/SOM resumido'], datos_que_necesitas: ['Cifras de mercado'] },
+      ],
+    },
+    'value-proposition': {
+      frase_principal: 'Ayudamos a [audiencia] a [resultado] sin [sacrificio habitual].',
+      variantes: [
+        { texto: 'Para equipos que ya no quieren improvisar su operación.', formula: 'audiencia + dolor' },
+        { texto: 'El atajo claro entre el caos diario y un sistema repetible.', formula: 'antes/después' },
+      ],
+      test_del_competidor: 'Si un competidor puede decir exactamente lo mismo, falta especificidad.',
+    },
+  };
+
+  return mocks[toolType] || {
+    resultado: 'Respuesta de prueba generada en modo TEST_MODE.',
+    nota: 'Configura tu API Key real para usar Gemini.',
+  };
 }
 
 // Format response with proper line breaks and markdown
@@ -733,12 +869,23 @@ function initPaywallModal() {
   
   // Reset usage button (for testing purposes)
   resetUsageBtn.addEventListener('click', () => {
-    if (confirm('🔄 ¿Resetear contador de uso?\n\nEsto es solo para pruebas. En producción, esta función no estaría disponible.')) {
-      localStorage.removeItem(USAGE_STORAGE_KEY);
-      localStorage.removeItem(PRO_USER_KEY);
-      updateUsageDisplay();
-      showToast('success', 'Contador reseteado', 'Tienes 3 generaciones gratuitas nuevamente.');
+    if (resetUsageBtn.dataset.confirm !== '1') {
+      resetUsageBtn.dataset.confirm = '1';
+      resetUsageBtn.title = 'Haz clic de nuevo para confirmar';
+      showToast('info', 'Confirmar reset', 'Haz clic otra vez en 🔄 para resetear el contador.', 4000);
+      setTimeout(() => {
+        resetUsageBtn.dataset.confirm = '0';
+        resetUsageBtn.title = 'Resetear contador (solo pruebas)';
+      }, 4000);
+      return;
     }
+
+    resetUsageBtn.dataset.confirm = '0';
+    resetUsageBtn.title = 'Resetear contador (solo pruebas)';
+    localStorage.removeItem(USAGE_STORAGE_KEY);
+    localStorage.removeItem(PRO_USER_KEY);
+    updateUsageDisplay();
+    showToast('success', 'Contador reseteado', 'Tienes 3 generaciones gratuitas nuevamente.');
   });
   
   // Close modal when clicking outside
@@ -1019,12 +1166,12 @@ function getPromptForTool(toolId) {
 // Automated test function for API endpoint
 async function testApiEndpoint() {
   console.log('🧪 Iniciando prueba automática del endpoint...');
-  
-  const testPrompt = 'Responde con "API funcionando correctamente" si puedes leer esto.';
-  const testSystemPrompt = 'Eres un asistente de prueba. Responde brevemente.';
-  
+
   try {
-    const result = await callGeminiAPI(testSystemPrompt, testPrompt);
+    const payload = window.construirPeticion('hook-generator', {
+      tema: 'Responde solo si puedes leer este mensaje de prueba.',
+    });
+    const result = await callGeminiAPI(payload, 'hook-generator');
     console.log('✅ Prueba automática exitosa:', result);
     return true;
   } catch (error) {
@@ -1170,3 +1317,7 @@ function saveApiKey() {
     }, 1500);
   }
 }
+
+// Expose breadcrumb helpers used by inline onclick handlers
+window.goToDashboard = goToDashboard;
+window.goToCategory = goToCategory;
