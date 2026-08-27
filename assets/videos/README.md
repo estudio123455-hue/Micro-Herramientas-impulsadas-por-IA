@@ -1,5 +1,9 @@
 # Videos
 
-Coloca aquí el archivo `demo-herramienta-ia.mp4` para el tutorial del dashboard.
+El tutorial del dashboard está en `demo-herramienta-ia.mp4` (45 s, 1280×720).
 
-Si el archivo no está presente, la app muestra automáticamente un resumen visual con los mismos pasos.
+Para regenerarlo:
+
+```bash
+python3 scripts/make-demo-video.py
+```
