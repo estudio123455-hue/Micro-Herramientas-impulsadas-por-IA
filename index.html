@@ -1,9 +1,12 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI Tools Dashboard - Micro-Herramientas impulsadas por IA</title>
+  <title>AI Tools — Micro-Herramientas impulsadas por IA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
@@ -13,7 +16,7 @@
     <header class="header">
       <div class="header-content">
         <div class="logo">
-          <span class="logo-icon">🚀</span>
+          <span class="logo-mark" aria-hidden="true">AI</span>
           <h1>AI Tools</h1>
         </div>
         <nav class="nav" role="navigation" aria-label="Categorías de herramientas">
@@ -32,7 +35,7 @@
         </nav>
         <div class="header-controls">
           <button class="theme-toggle" id="themeToggle" aria-label="Cambiar tema claro/oscuro">
-            <span class="theme-icon" aria-hidden="true">🌙</span>
+            <span class="theme-icon" aria-hidden="true">☀️</span>
           </button>
           <div class="usage-display" id="usageDisplay" aria-live="polite" aria-label="Uso diario de generaciones">
             <span class="usage-count">3/3</span>
@@ -54,100 +57,96 @@
       <nav class="breadcrumb" id="breadcrumb" aria-label="Navegación de migas de pan">
         <span class="breadcrumb-item" data-step="dashboard">Dashboard</span>
       </nav>
-      
-      <!-- Tutorial Section -->
-      <section class="tutorial-section" id="tutorialSection" aria-labelledby="tutorialTitle">
-        <h2 id="tutorialTitle" class="section-title">📚 Tutoriales y Guías</h2>
-        
-        <div class="tutorial-grid">
-          <!-- Video Tutorial -->
-          <div class="tutorial-card">
-            <div class="video-container">
-              <video id="tutorialVideo" controls preload="metadata" aria-label="Tutorial de uso de la herramienta IA">
-                <source src="assets/videos/demo-herramienta-ia.mp4" type="video/mp4">
-                <track src="assets/subtitles/demo-es.vtt" kind="subtitles" srclang="es" label="Español" default>
-                <track src="assets/subtitles/demo-en.vtt" kind="subtitles" srclang="en" label="English">
-                Tu navegador no soporta video HTML5.
-              </video>
-              <div class="video-fallback" id="videoFallback" hidden>
-                <div class="video-fallback-icon" aria-hidden="true">▶</div>
-                <p class="video-fallback-title">Tutorial en 5 pasos</p>
-                <ol class="video-fallback-steps">
-                  <li>Elige una categoría: Creadores, Empleo o Negocios</li>
-                  <li>Abre la herramienta que necesitas</li>
-                  <li>Escribe tu texto (mínimo 10 caracteres)</li>
-                  <li>Pulsa «Generar con IA»</li>
-                  <li>Copia el resultado y úsalo</li>
-                </ol>
-              </div>
-              
-              <!-- Transcripción accesible -->
-              <details class="transcription-box">
-                <summary>Ver transcripción del video</summary>
-                <div class="transcription-content">
-                  <p><strong>[00:00] Narrador:</strong> Bienvenidos a nuestra plataforma de Micro-Herramientas impulsadas por IA.</p>
-                  <p><strong>[00:05] Narrador:</strong> En este tutorial aprenderás a utilizar nuestras 9 herramientas especializadas.</p>
-                  <p><strong>[00:15] Narrador:</strong> Primero, selecciona la categoría que necesitas: Creadores, Empleo o Negocios.</p>
-                  <p><strong>[00:25] Narrador:</strong> Luego elige la herramienta específica y completa el campo de texto.</p>
-                  <p><strong>[00:35] Narrador:</strong> Haz clic en "Generar con IA" y espera el resultado optimizado.</p>
-                </div>
-              </details>
-            </div>
-            <div class="tutorial-info">
-              <h3>Tutorial General</h3>
-              <p>Aprende a usar todas las herramientas del dashboard en 5 minutos.</p>
-              <span class="tutorial-tag">Principiante</span>
+
+      <!-- Hero = misma visión que el video -->
+      <section class="hero-section" id="tutorialSection" aria-labelledby="heroBrand">
+        <div class="hero-copy">
+          <p class="hero-brand" id="heroBrand">AI Tools</p>
+          <h2 class="hero-title">Micro-Herramientas impulsadas por IA</h2>
+          <p class="hero-sub">Creadores · Empleo · Negocios</p>
+          <div class="hero-actions">
+            <a class="hero-cta" href="#dashboardView">Elegir herramienta</a>
+            <a class="hero-link" href="assets/guides/guia-rapida.md">Guía rápida</a>
+          </div>
+        </div>
+
+        <div class="hero-stage">
+          <div class="video-container">
+            <video id="tutorialVideo" controls preload="metadata" playsinline aria-label="Tutorial de uso de AI Tools">
+              <source src="assets/videos/demo-herramienta-ia.mp4" type="video/mp4">
+              <track src="assets/subtitles/demo-es.vtt" kind="subtitles" srclang="es" label="Español" default>
+              <track src="assets/subtitles/demo-en.vtt" kind="subtitles" srclang="en" label="English">
+              Tu navegador no soporta video HTML5.
+            </video>
+            <div class="video-fallback" id="videoFallback" hidden>
+              <div class="video-fallback-icon" aria-hidden="true">▶</div>
+              <p class="video-fallback-title">Tutorial en 5 pasos</p>
+              <ol class="video-fallback-steps">
+                <li>Elige una categoría: Creadores, Empleo o Negocios</li>
+                <li>Abre la herramienta que necesitas</li>
+                <li>Escribe tu texto (mínimo 10 caracteres)</li>
+                <li>Pulsa «Generar con IA»</li>
+                <li>Copia el resultado y úsalo</li>
+              </ol>
             </div>
           </div>
-          
-          <!-- Interactive Demo -->
-          <div class="tutorial-card">
-            <div class="demo-container">
-              <div class="demo-steps" id="demoSteps" role="region" aria-label="Demo interactiva de uso">
-                <div class="demo-step active" data-step="1">
-                  <div class="step-number">1</div>
-                  <div class="step-content">
-                    <h4>Seleccionar Categoría</h4>
-                    <p>Elige entre Creadores, Empleo o Negocios según tu necesidad.</p>
-                  </div>
-                </div>
-                <div class="demo-step" data-step="2">
-                  <div class="step-number">2</div>
-                  <div class="step-content">
-                    <h4>Elegir Herramienta</h4>
-                    <p>Selecciona la herramienta específica que deseas utilizar.</p>
-                  </div>
-                </div>
-                <div class="demo-step" data-step="3">
-                  <div class="step-number">3</div>
-                  <div class="step-content">
-                    <h4>Ingresar Contenido</h4>
-                    <p>Escribe tu prompt o texto en el campo de entrada.</p>
-                  </div>
-                </div>
-                <div class="demo-step" data-step="4">
-                  <div class="step-number">4</div>
-                  <div class="step-content">
-                    <h4>Generar con IA</h4>
-                    <p>Haz clic en el botón para obtener tu resultado optimizado.</p>
-                  </div>
-                </div>
-              </div>
-              <div class="demo-controls">
-                <button class="demo-nav-btn" id="prevStepBtn" aria-label="Paso anterior" disabled>
-                  <span>←</span> Anterior
-                </button>
-                <button class="demo-nav-btn" id="nextStepBtn" aria-label="Siguiente paso">
-                  Siguiente <span>→</span>
-                </button>
+          <details class="transcription-box">
+            <summary>Ver transcripción del video</summary>
+            <div class="transcription-content">
+              <p><strong>[00:00]</strong> Bienvenidos a nuestra plataforma de Micro-Herramientas impulsadas por IA.</p>
+              <p><strong>[00:05]</strong> En este tutorial aprenderás a utilizar nuestras 9 herramientas especializadas.</p>
+              <p><strong>[00:15]</strong> Primero, selecciona la categoría que necesitas: Creadores, Empleo o Negocios.</p>
+              <p><strong>[00:25]</strong> Luego elige la herramienta específica y completa el campo de texto.</p>
+              <p><strong>[00:35]</strong> Haz clic en "Generar con IA" y espera el resultado optimizado.</p>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <!-- Flujo interactivo (mismo recorrido del video) -->
+      <section class="flow-section" aria-labelledby="flowTitle">
+        <div class="flow-header">
+          <h2 id="flowTitle" class="section-title">Así funciona</h2>
+          <p class="section-lead">El mismo recorrido del tutorial, paso a paso.</p>
+        </div>
+        <div class="demo-container flow-demo">
+          <div class="demo-steps" id="demoSteps" role="region" aria-label="Demo interactiva de uso">
+            <div class="demo-step active" data-step="1">
+              <div class="step-number">1</div>
+              <div class="step-content">
+                <h4>Seleccionar categoría</h4>
+                <p>Elige entre Creadores, Empleo o Negocios.</p>
               </div>
             </div>
-            <div class="tutorial-info">
-              <h3>Demo Interactiva</h3>
-              <p>Explora el flujo de trabajo paso a paso de forma interactiva.</p>
-              <span class="tutorial-tag">Interactivo</span>
-              <a class="guide-link" href="assets/guides/guia-rapida.md">Ver guía rápida</a>
+            <div class="demo-step" data-step="2">
+              <div class="step-number">2</div>
+              <div class="step-content">
+                <h4>Elegir herramienta</h4>
+                <p>Abre la micro-herramienta que necesitas.</p>
+              </div>
             </div>
+            <div class="demo-step" data-step="3">
+              <div class="step-number">3</div>
+              <div class="step-content">
+                <h4>Ingresar contenido</h4>
+                <p>Escribe tu texto en el campo de entrada.</p>
+              </div>
+            </div>
+            <div class="demo-step" data-step="4">
+              <div class="step-number">4</div>
+              <div class="step-content">
+                <h4>Generar con IA</h4>
+                <p>Obtén el resultado y cópialo.</p>
+              </div>
+            </div>
+          </div>
+          <div class="demo-controls">
+            <button class="demo-nav-btn" id="prevStepBtn" aria-label="Paso anterior" disabled>
+              <span>←</span> Anterior
+            </button>
+            <button class="demo-nav-btn" id="nextStepBtn" aria-label="Siguiente paso">
+              Siguiente <span>→</span>
+            </button>
           </div>
         </div>
       </section>
@@ -155,7 +154,7 @@
       <!-- Dashboard View -->
       <div id="dashboardView" class="dashboard-view">
         <div class="category-section" id="creadores-section">
-          <h2 class="category-title">🎬 Creadores de Contenido</h2>
+          <h2 class="category-title">Creadores de Contenido</h2>
           <div class="cards-grid" role="list">
             <div class="tool-card" data-tool="script-generator" role="listitem" tabindex="0" aria-label="Generador de Guiones - Crea guiones virales para TikTok, Reels y Shorts">
               <div class="card-icon" aria-hidden="true">📝</div>
@@ -179,7 +178,7 @@
         </div>
 
         <div class="category-section hidden" id="empleo-section">
-          <h2 class="category-title">💼 Buscadores de Empleo</h2>
+          <h2 class="category-title">Buscadores de Empleo</h2>
           <div class="cards-grid" role="list">
             <div class="tool-card" data-tool="cv-optimizer" role="listitem" tabindex="0" aria-label="Optimizador de CV - Mejora tu CV para destacar en procesos">
               <div class="card-icon" aria-hidden="true">📄</div>
@@ -203,7 +202,7 @@
         </div>
 
         <div class="category-section hidden" id="negocios-section">
-          <h2 class="category-title">📈 Negocios y Ventas</h2>
+          <h2 class="category-title">Negocios y Ventas</h2>
           <div class="cards-grid" role="list">
             <div class="tool-card" data-tool="email-sales" role="listitem" tabindex="0" aria-label="Emails de Ventas - Secuencias de email para convertir leads">
               <div class="card-icon" aria-hidden="true">📧</div>

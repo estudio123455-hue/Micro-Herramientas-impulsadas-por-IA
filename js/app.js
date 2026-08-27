@@ -272,6 +272,7 @@ function openTool(toolId) {
     // Switch views
     dashboardView.classList.add('hidden');
     document.getElementById('tutorialSection')?.classList.add('hidden');
+    document.querySelector('.flow-section')?.classList.add('hidden');
     toolView.classList.remove('hidden');
     
     // Scroll to top
@@ -307,6 +308,7 @@ function goToDashboard() {
   toolView.classList.add('hidden');
   dashboardView.classList.remove('hidden');
   document.getElementById('tutorialSection')?.classList.remove('hidden');
+  document.querySelector('.flow-section')?.classList.remove('hidden');
   currentTool = null;
   
   breadcrumb.innerHTML = `
@@ -328,6 +330,7 @@ function goToCategory(category) {
     toolView.classList.add('hidden');
     dashboardView.classList.remove('hidden');
     document.getElementById('tutorialSection')?.classList.remove('hidden');
+    document.querySelector('.flow-section')?.classList.remove('hidden');
     currentTool = null;
     switchCategory(categoryId);
     updateActiveNavButton(categoryId);
@@ -433,7 +436,7 @@ function initThemeToggle() {
 }
 
 function loadTheme() {
-  const savedTheme = localStorage.getItem('theme') || 'light';
+  const savedTheme = localStorage.getItem('theme') || 'dark';
   document.documentElement.setAttribute('data-theme', savedTheme);
   themeToggle.querySelector('.theme-icon').textContent = savedTheme === 'dark' ? '☀️' : '🌙';
 }
