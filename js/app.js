@@ -1,5 +1,4 @@
-// Configuration - API Key will be loaded from localStorage
-let API_KEY = localStorage.getItem('gemini_api_key') || '';
+import { generar, ErrorGeneracion, obtenerKeyLocal, guardarKeyLocal, borrarKeyLocal } from './api-client.js';
 
 // Usage tracking configuration
 const DAILY_LIMIT = 3;
@@ -460,12 +459,6 @@ async function generateContent(toolType) {
     return;
   }
   
-  if (!API_KEY) {
-    showToast('error', 'API Key requerida', 'Configura tu API Key en el icono ⚙️');
-    openApiModal();
-    return;
-  }
-  
   // Check daily limit
   const limitCheck = checkDailyLimit();
   if (!limitCheck.allowed) {
@@ -478,11 +471,6 @@ async function generateContent(toolType) {
     showToast('info', 'Última generación gratis', `Te queda ${limitCheck.remaining} de ${limitCheck.limit} hoy.`, 4000);
   }
   
-  // Check if using test mode
-  if (API_KEY === 'TEST_MODE') {
-    console.log('🧪 Usando modo de prueba - no se consumirá cuota de API');
-  }
-  
   // Show loading state
   generateBtn.disabled = true;
   generateBtn.classList.add('loading');
@@ -492,8 +480,12 @@ async function generateContent(toolType) {
   
   try {
     const inputs = getInputsForTool(toolType, input);
-    const payload = window.construirPeticion(toolType, inputs);
-    const response = await callGeminiAPI(payload, toolType);
+    let response;
+    if (obtenerKeyLocal() === 'TEST_MODE') {
+      response = await simulateAIResponse(toolType);
+    } else {
+      response = await generar(toolType, inputs, {});
+    }
     
     // Increment usage counter after successful generation
     incrementUsage();
@@ -537,60 +529,7 @@ async function generateContent(toolType) {
   }
 }
 
-async function callGeminiAPI(payload, toolType = null) {
-  // Test mode: if API key contains "TEST", return simulated response
-  if (API_KEY === 'TEST_MODE') {
-    return simulateAIResponse(toolType || currentTool, payload);
-  }
-  
-  const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
-  
-  try {
-    const response = await fetch(apiUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(payload)
-    });
-    
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(`HTTP Error ${response.status}: ${errorData.error?.message || response.statusText}`);
-    }
-    
-    const data = await response.json();
-    
-    if (data.candidates && data.candidates[0] && data.candidates[0].content) {
-      const rawText = data.candidates[0].content.parts[0].text;
-      return parseModelJson(rawText);
-    }
-    
-    throw new Error('Formato de respuesta inválido de la API');
-    
-  } catch (error) {
-    console.error('❌ Error en llamada API:', error);
-    throw error;
-  }
-}
 
-function parseModelJson(rawText) {
-  const trimmed = String(rawText || '').trim();
-  try {
-    return JSON.parse(trimmed);
-  } catch (_) {
-    const fenced = trimmed.match(/```(?:json)?\s*([\s\S]*?)```/i);
-    if (fenced) {
-      return JSON.parse(fenced[1].trim());
-    }
-    const start = trimmed.indexOf('{');
-    const end = trimmed.lastIndexOf('}');
-    if (start !== -1 && end !== -1 && end > start) {
-      return JSON.parse(trimmed.slice(start, end + 1));
-    }
-    throw new Error('La API no devolvió JSON válido');
-  }
-}
 
 function getInputsForTool(toolId, input) {
   const text = input.trim();
@@ -798,23 +737,23 @@ function formatResponse(text) {
 
 // Handle API errors with user-friendly messages
 function handleApiError(error) {
-  let errorMessage = 'Error al generar la respuesta.';
-  
-  if (error.message.includes('401') || error.message.includes('403')) {
-    errorMessage = 'Error de autenticación. Verifica que tu API Key sea correcta.';
-  } else if (error.message.includes('429')) {
-    errorMessage = 'Límite de cuota excedido. Intenta nuevamente en unos minutos.';
-  } else if (error.message.includes('400')) {
-    errorMessage = 'Error en la solicitud. Verifica tu entrada.';
-  } else if (error.message.includes('network') || error.message.includes('fetch')) {
+  let errorMessage = error.message || 'Error al generar la respuesta.';
+
+  if (error instanceof ErrorGeneracion) {
+    // El mensaje ya viene traducido desde api-client.js
+    if (error.codigo === 'requiere_api_key') openApiModal();
+  } else if (
+    error.message?.includes('Failed to fetch') ||
+    error.message?.includes('network') ||
+    error.message?.includes('fetch')
+  ) {
     errorMessage = 'Error de conexión. Verifica tu internet.';
   }
-  
+
   resultContent.innerHTML = `
     <div class="error-message">
-      <strong>❌ ${errorMessage}</strong>
-      <br><br>
-      <small>Detalle: ${error.message}</small>
+      <strong>❌ ${escapeHtml(errorMessage)}</strong>
+      ${error.codigo ? `<br><br><small>Código: ${escapeHtml(error.codigo)}</small>` : ''}
     </div>
   `;
 }
@@ -1156,29 +1095,17 @@ function validateInput() {
   return isValid;
 }
 
-// Get prompt for current tool (imported from prompts.js)
-function getPromptForTool(toolId) {
-  if (window.PROMPTS && window.PROMPTS[toolId]) {
-    return window.PROMPTS[toolId];
-  }
-  
-  // Fallback prompt
-  return 'Eres un asistente útil. Responde de manera clara y concisa.';
-}
-
 // Automated test function for API endpoint
 async function testApiEndpoint() {
-  console.log('🧪 Iniciando prueba automática del endpoint...');
-
+  console.log('🧪 Iniciando prueba del endpoint...');
   try {
-    const payload = window.construirPeticion('hook-generator', {
+    const result = await generar('hook-generator', {
       tema: 'Responde solo si puedes leer este mensaje de prueba.',
     });
-    const result = await callGeminiAPI(payload, 'hook-generator');
-    console.log('✅ Prueba automática exitosa:', result);
+    console.log('✅ Prueba exitosa:', result);
     return true;
   } catch (error) {
-    console.error('❌ Prueba automática fallida:', error);
+    console.error('❌ Prueba fallida:', error);
     return false;
   }
 }
@@ -1186,28 +1113,28 @@ async function testApiEndpoint() {
 // Manual test function for API connection
 async function testApiConnection() {
   const testKey = apiKeyInput.value.trim();
-  
+
   if (!testKey) {
     showToast('error', 'API Key requerida', 'Ingresa una API Key para probar la conexión.');
     return;
   }
-  
-  // Temporarily use the test key
-  const originalKey = API_KEY;
-  API_KEY = testKey;
-  
+
+  // Guardar temporalmente la key de prueba y restaurar al terminar
+  const originalKey = obtenerKeyLocal();
+  guardarKeyLocal(testKey);
+
   testApiBtn.textContent = '⏳ Probando...';
   testApiBtn.disabled = true;
-  
+
   try {
     const success = await testApiEndpoint();
-    
+
     if (success) {
       testApiBtn.textContent = '✅ Conexión exitosa';
       testApiBtn.style.background = '#10b981';
       testApiBtn.style.color = 'white';
       testApiBtn.style.borderColor = '#10b981';
-      
+
       setTimeout(() => {
         testApiBtn.textContent = '🧪 Probar Conexión';
         testApiBtn.style.background = '';
@@ -1215,7 +1142,7 @@ async function testApiConnection() {
         testApiBtn.style.borderColor = '';
         testApiBtn.disabled = false;
       }, 2000);
-      
+
       showToast('success', 'Conexión exitosa', 'La API Key funciona correctamente. HTTP 200 OK recibido.');
     } else {
       throw new Error('La prueba de conexión falló');
@@ -1225,7 +1152,7 @@ async function testApiConnection() {
     testApiBtn.style.background = '#ef4444';
     testApiBtn.style.color = 'white';
     testApiBtn.style.borderColor = '#ef4444';
-    
+
     setTimeout(() => {
       testApiBtn.textContent = '🧪 Probar Conexión';
       testApiBtn.style.background = '';
@@ -1233,11 +1160,12 @@ async function testApiConnection() {
       testApiBtn.style.borderColor = '';
       testApiBtn.disabled = false;
     }, 2000);
-    
+
     showToast('error', 'Error de conexión', `${error.message}. Verifica tu API Key e intenta nuevamente.`);
   } finally {
-    // Restore original key
-    API_KEY = originalKey;
+    // Restaurar key original
+    if (originalKey) guardarKeyLocal(originalKey);
+    else borrarKeyLocal();
   }
 }
 
@@ -1263,20 +1191,22 @@ function initApiConfig() {
   });
   
   // Load saved API key into input
-  if (API_KEY) {
-    if (API_KEY === 'TEST_MODE') {
+  const savedKey = obtenerKeyLocal();
+  if (savedKey) {
+    if (savedKey === 'TEST_MODE') {
       testModeCheckbox.checked = true;
       apiKeyInput.value = '';
     } else {
-      apiKeyInput.value = API_KEY;
+      apiKeyInput.value = savedKey;
     }
   }
 }
 
 function openApiModal() {
+  const key = obtenerKeyLocal();
   apiModal.classList.remove('hidden');
-  apiKeyInput.value = API_KEY === 'TEST_MODE' ? '' : API_KEY;
-  testModeCheckbox.checked = API_KEY === 'TEST_MODE';
+  apiKeyInput.value = key === 'TEST_MODE' ? '' : (key || '');
+  testModeCheckbox.checked = key === 'TEST_MODE';
   apiKeyInput.focus();
 }
 
@@ -1286,13 +1216,11 @@ function closeApiModal() {
 
 function saveApiKey() {
   if (testModeCheckbox.checked) {
-    API_KEY = 'TEST_MODE';
-    localStorage.setItem('gemini_api_key', API_KEY);
-    
-    // Show success feedback
+    guardarKeyLocal('TEST_MODE');
+
     saveApiBtn.textContent = '✅ Guardado';
     saveApiBtn.style.background = '#10b981';
-    
+
     setTimeout(() => {
       saveApiBtn.textContent = 'Guardar API Key';
       saveApiBtn.style.background = '';
@@ -1300,19 +1228,17 @@ function saveApiKey() {
     }, 1500);
   } else {
     const newApiKey = apiKeyInput.value.trim();
-    
+
     if (!newApiKey) {
       showToast('error', 'API Key requerida', 'Ingresa una API Key válida o activa el modo de prueba.');
       return;
     }
-    
-    API_KEY = newApiKey;
-    localStorage.setItem('gemini_api_key', API_KEY);
-    
-    // Show success feedback
+
+    guardarKeyLocal(newApiKey);
+
     saveApiBtn.textContent = '✅ Guardado';
     saveApiBtn.style.background = '#10b981';
-    
+
     setTimeout(() => {
       saveApiBtn.textContent = 'Guardar API Key';
       saveApiBtn.style.background = '';
