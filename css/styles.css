@@ -1,71 +1,537 @@
-/* Reset and Base Styles */
-* {
-  margin: 0;
-  padding: 0;
+/* ==========================================================================
+   AI Tools — capa base
+   ========================================================================== */
+
+
+/* --------------------------------------------------------------------------
+   1. Reset
+   -------------------------------------------------------------------------- */
+
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
-:root {
-  /* Visión del video (dark slate + indigo) */
-  --bg-primary: #0f172a;
-  --bg-secondary: #1e293b;
-  --bg-tertiary: #334155;
-  --bg-deep: #020617;
-  --text-primary: #f1f5f9;
-  --text-secondary: #cbd5e1;
-  --text-tertiary: #94a3b8;
-  --accent-primary: #6366f1;
-  --accent-secondary: #8b5cf6;
-  --accent-hover: #818cf8;
-  --border-color: #334155;
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.35);
-  --shadow-md: 0 8px 24px rgba(2, 6, 23, 0.45);
-  --shadow-lg: 0 18px 40px rgba(2, 6, 23, 0.55);
-  --card-radius: 18px;
-  --btn-radius: 12px;
-  --transition: all 0.28s ease;
-  --font-display: "Sora", "Segoe UI", sans-serif;
-  --font-body: "Outfit", "Segoe UI", sans-serif;
+* {
+  margin: 0;
+  padding: 0;
 }
 
-[data-theme="light"] {
-  --bg-primary: #eef2ff;
-  --bg-secondary: #ffffff;
-  --bg-tertiary: #e2e8f0;
-  --bg-deep: #e0e7ff;
-  --text-primary: #0f172a;
-  --text-secondary: #475569;
-  --text-tertiary: #64748b;
-  --accent-primary: #4f46e5;
-  --accent-secondary: #7c3aed;
-  --accent-hover: #4338ca;
-  --border-color: #c7d2fe;
-  --shadow-sm: 0 1px 2px 0 rgba(15, 23, 42, 0.06);
-  --shadow-md: 0 8px 24px rgba(15, 23, 42, 0.08);
-  --shadow-lg: 0 18px 40px rgba(15, 23, 42, 0.12);
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
 }
 
 body {
-  font-family: var(--font-body);
-  background:
-    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(99, 102, 241, 0.28), transparent 55%),
-    radial-gradient(ellipse 50% 40% at 100% 20%, rgba(139, 92, 246, 0.12), transparent 50%),
-    var(--bg-primary);
-  background-attachment: fixed;
-  color: var(--text-primary);
-  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
   min-height: 100vh;
-  transition: var(--transition);
 }
+
+img,
+svg,
+video {
+  display: block;
+  max-width: 100%;
+}
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+h1, h2, h3, h4 {
+  text-wrap: balance;
+}
+
+p, li {
+  text-wrap: pretty;
+}
+
+
+/* --------------------------------------------------------------------------
+   2. Tokens independientes del tema
+   -------------------------------------------------------------------------- */
+
+:root {
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4rem;
+  --space-9: 6rem;
+
+  --text-xs:   0.75rem;
+  --text-sm:   0.875rem;
+  --text-base: 1rem;
+  --text-lg:   1.125rem;
+  --text-xl:   1.375rem;
+  --text-2xl:  1.75rem;
+  --text-3xl:  clamp(2rem, 1.4rem + 2.4vw, 3rem);
+
+  --leading-tight:  1.15;
+  --leading-snug:   1.35;
+  --leading-normal: 1.6;
+
+  --tracking-tight: -0.02em;
+  --tracking-wide:   0.08em;
+
+  --container: 1120px;
+  --container-narrow: 760px;
+  --measure: 68ch;
+
+  --card-radius: 12px;
+  --btn-radius: 8px;
+  --input-radius: 8px;
+
+  --transition: 160ms cubic-bezier(0.2, 0, 0, 1);
+
+  --font-display: "Sora", "Segoe UI", sans-serif;
+  --font-body: "Outfit", "Segoe UI", sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, monospace;
+}
+
+
+/* --------------------------------------------------------------------------
+   3. Paleta — modo oscuro (por defecto)
+   -------------------------------------------------------------------------- */
+
+:root {
+  --bg-deep:      #0c0d0d;
+  --bg-primary:   #131514;
+  --bg-secondary: #1b1e1d;
+  --bg-tertiary:  #262a29;
+
+  --text-primary:   #edefee;
+  --text-secondary: #a8b0ad;
+  --text-tertiary:  #6f7876;
+
+  --accent-primary:   #3aa08f;
+  --accent-secondary: #2b7f72;
+  --accent-hover:     #4cb9a6;
+  --accent-soft:      rgba(58, 160, 143, 0.14);
+
+  --border-color:  #2e3332;
+  --border-strong: #3d4342;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 6px 20px -6px rgba(0, 0, 0, 0.5);
+  --shadow-lg: var(--shadow-md);
+
+  color-scheme: dark;
+}
+
+
+/* --------------------------------------------------------------------------
+   4. Paleta — modo claro
+   -------------------------------------------------------------------------- */
+
+[data-theme="light"] {
+  --bg-deep:      #e9e7e2;
+  --bg-primary:   #faf9f7;
+  --bg-secondary: #ffffff;
+  --bg-tertiary:  #f1efeb;
+
+  --text-primary:   #161a19;
+  --text-secondary: #525856;
+  --text-tertiary:  #838a88;
+
+  --accent-primary:   #0f7d6f;
+  --accent-secondary: #0a5f54;
+  --accent-hover:     #0c6a5e;
+  --accent-soft:      rgba(15, 125, 111, 0.10);
+
+  --border-color:  #ddd9d3;
+  --border-strong: #c6c1b9;
+
+  --shadow-sm: 0 1px 2px rgba(20, 20, 18, 0.06);
+  --shadow-md: 0 6px 20px -6px rgba(20, 20, 18, 0.14);
+  --shadow-lg: var(--shadow-md);
+
+  color-scheme: light;
+}
+
+
+/* --------------------------------------------------------------------------
+   5. Tipografía base
+   -------------------------------------------------------------------------- */
+
+body {
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
+  transition: background-color var(--transition), color var(--transition);
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
+  font-weight: 600;
+}
+
+h1 { font-size: var(--text-3xl); }
+h2 { font-size: var(--text-2xl); }
+h3 { font-size: var(--text-xl); }
+h4 { font-size: var(--text-lg); }
+
+p {
+  max-width: var(--measure);
+  color: var(--text-secondary);
+}
+
+a {
+  color: var(--accent-primary);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+a:hover {
+  color: var(--accent-hover);
+}
+
+.eyebrow {
+  font-size: var(--text-xs);
+  font-weight: 600;
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+
+/* --------------------------------------------------------------------------
+   6. Layout
+   -------------------------------------------------------------------------- */
+
+.container {
+  width: 100%;
+  max-width: var(--container);
+  margin-inline: auto;
+  padding-inline: var(--space-5);
+}
+
+.container--narrow {
+  max-width: var(--container-narrow);
+}
+
+.section {
+  padding-block: var(--space-8);
+}
+
+.section + .section {
+  border-top: 1px solid var(--border-color);
+}
+
+.stack > * + * {
+  margin-top: var(--stack-space, var(--space-4));
+}
+
+.section-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-bottom: var(--space-6);
+}
+
+
+/* --------------------------------------------------------------------------
+   7. Cabecera
+   -------------------------------------------------------------------------- */
+
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background-color: color-mix(in srgb, var(--bg-primary) 88%, transparent);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.site-header__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  min-height: 60px;
+}
+
+.brand {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: 600;
+  letter-spacing: var(--tracking-tight);
+  color: var(--text-primary);
+  text-decoration: none;
+}
+
+
+/* --------------------------------------------------------------------------
+   8. Rejilla de herramientas
+   -------------------------------------------------------------------------- */
+
+.tool-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--space-4);
+}
+
+.tool-card__title {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.tool-card__desc {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  max-width: none;
+}
+
+.tool-card__icon {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  margin-bottom: var(--space-2);
+  border-radius: var(--btn-radius);
+  background-color: var(--accent-soft);
+  color: var(--accent-primary);
+}
+
+
+/* --------------------------------------------------------------------------
+   9. Formularios
+   -------------------------------------------------------------------------- */
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.field__label {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.field__hint {
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+}
+
+
+/* --------------------------------------------------------------------------
+   10. Botones base
+   -------------------------------------------------------------------------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-5);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  border-radius: var(--btn-radius);
+  border: 1px solid transparent;
+  transition: background-color var(--transition), border-color var(--transition);
+  white-space: nowrap;
+}
+
+.btn--primary {
+  background-color: var(--accent-primary);
+  color: #ffffff;
+}
+
+.btn--primary:hover {
+  background-color: var(--accent-hover);
+}
+
+.btn--secondary {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+
+.btn--secondary:hover {
+  border-color: var(--border-strong);
+  background-color: var(--bg-tertiary);
+}
+
+.btn--ghost {
+  color: var(--text-secondary);
+  padding-inline: var(--space-3);
+}
+
+.btn--ghost:hover {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+
+/* --------------------------------------------------------------------------
+   11. Panel de resultado
+   -------------------------------------------------------------------------- */
+
+.output {
+  padding: var(--space-5);
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--card-radius);
+}
+
+.output__body {
+  max-width: var(--measure);
+  white-space: pre-wrap;
+  color: var(--text-primary);
+  line-height: var(--leading-normal);
+}
+
+.output__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding-bottom: var(--space-4);
+  margin-bottom: var(--space-4);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.output--empty {
+  display: grid;
+  place-items: center;
+  min-height: 200px;
+  color: var(--text-tertiary);
+  font-size: var(--text-sm);
+  border-style: dashed;
+}
+
+
+/* --------------------------------------------------------------------------
+   12. Insignias y contador de uso
+   -------------------------------------------------------------------------- */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  border-radius: 999px;
+  background-color: var(--bg-tertiary);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+}
+
+.badge--accent {
+  background-color: var(--accent-soft);
+  color: var(--accent-primary);
+  border-color: transparent;
+}
+
+.usage-counter {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-tertiary);
+}
+
+
+/* --------------------------------------------------------------------------
+   13. Modal base
+   -------------------------------------------------------------------------- */
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: var(--space-4);
+  background-color: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(3px);
+}
+
+
+/* --------------------------------------------------------------------------
+   14. Accesibilidad
+   -------------------------------------------------------------------------- */
+
+:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+
+/* --------------------------------------------------------------------------
+   15. Móvil
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 640px) {
+  :root {
+    --space-8: 3rem;
+    --space-9: 4rem;
+  }
+
+  .container {
+    padding-inline: var(--space-4);
+  }
+
+  .tool-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* ==========================================================================
+   Estilos de componentes existentes
+   ========================================================================== */
 
 .hidden {
   display: none !important;
-}
-
-[data-theme="light"] body {
-  background:
-    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(99, 102, 241, 0.18), transparent 55%),
-    var(--bg-primary);
 }
 
 /* Skip Link for Accessibility */
