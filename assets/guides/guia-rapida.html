@@ -4,32 +4,27 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Guía rápida — AI Tools</title>
+  <meta name="description" content="Cómo usar AI Tools: registro, planes, herramientas y preguntas frecuentes.">
 
-  <!-- Mismas fuentes que la app principal -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-  <!-- Tokens y estilos del proyecto -->
   <link rel="stylesheet" href="../../css/styles.css">
 
   <style>
-    /* ---------------------------------------------------------------
-       Estilos específicos de la guía — usan los tokens de styles.css
-    --------------------------------------------------------------- */
+    /* ─── Tokens heredados de styles.css ─────────────────────────────────── */
 
-    /* Aplica el tema por defecto mientras JS carga */
     html { visibility: hidden; }
     html.ready { visibility: visible; }
 
-    /* Layout de página de documento */
     .guide-page {
       min-height: 100vh;
       background-color: var(--color-bg);
       color: var(--color-text);
     }
 
-    /* Cabecera mínima de la guía */
+    /* ─── Header ─────────────────────────────────────────────────────────── */
+
     .guide-header {
       position: sticky;
       top: 0;
@@ -45,12 +40,11 @@
       align-items: center;
       justify-content: space-between;
       gap: var(--sp-4);
-      max-width: 760px;
+      max-width: 820px;
       margin-inline: auto;
       padding: var(--sp-3) var(--sp-5);
     }
 
-    /* Botón volver */
     .guide-back {
       display: inline-flex;
       align-items: center;
@@ -63,10 +57,7 @@
       font-size: var(--text-sm);
       font-weight: 600;
       text-decoration: none;
-      transition:
-        background var(--transition-fast),
-        border-color var(--transition-fast),
-        color var(--transition-fast);
+      transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
     }
     .guide-back:hover {
       background: var(--color-bg-raised);
@@ -74,7 +65,6 @@
       color: var(--color-text);
     }
 
-    /* Logotipo mínimo */
     .guide-brand {
       display: inline-flex;
       align-items: center;
@@ -98,7 +88,6 @@
       font-weight: 800;
     }
 
-    /* Botón de tema */
     .guide-theme-btn {
       display: inline-grid;
       place-items: center;
@@ -116,14 +105,15 @@
       border-color: var(--color-border-hi);
     }
 
-    /* Contenido del documento */
+    /* ─── Contenido ───────────────────────────────────────────────────────── */
+
     .guide-body {
-      max-width: 760px;
+      max-width: 820px;
       margin-inline: auto;
       padding: var(--sp-7) var(--sp-5) var(--sp-8);
     }
 
-    /* Hero de la guía */
+    /* Hero */
     .guide-hero {
       margin-bottom: var(--sp-7);
       padding-bottom: var(--sp-6);
@@ -147,7 +137,7 @@
 
     .guide-title {
       font-family: var(--font-display);
-      font-size: clamp(1.6rem, 1rem + 2.5vw, 2.4rem);
+      font-size: clamp(1.7rem, 1rem + 2.8vw, 2.6rem);
       font-weight: 800;
       letter-spacing: -0.03em;
       line-height: 1.1;
@@ -158,26 +148,52 @@
     .guide-subtitle {
       font-size: var(--text-base);
       color: var(--color-text-muted);
-      max-width: 52ch;
+      max-width: 56ch;
+      line-height: 1.65;
     }
 
-    /* Secciones */
-    .guide-section {
+    /* ─── Alerta de estado (banner) ───────────────────────────────────────── */
+
+    .guide-banner {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--sp-3);
+      padding: var(--sp-4);
+      border-radius: var(--radius-lg);
       margin-bottom: var(--sp-7);
+      font-size: var(--text-sm);
+      line-height: 1.6;
     }
+    .guide-banner--info {
+      background: var(--color-accent-bg);
+      border: 1px solid var(--color-accent);
+      color: var(--color-text);
+    }
+    .guide-banner--warn {
+      background: rgba(245, 158, 11, 0.1);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      color: var(--color-text);
+    }
+    .guide-banner__icon { font-size: 1.25rem; flex-shrink: 0; line-height: 1.3; }
+    .guide-banner__text { max-width: none; color: inherit; }
+    .guide-banner__text strong { color: inherit; }
+
+    /* ─── Secciones ───────────────────────────────────────────────────────── */
+
+    .guide-section { margin-bottom: var(--sp-7); }
 
     .guide-section__header {
       display: flex;
       align-items: center;
       gap: var(--sp-3);
-      margin-bottom: var(--sp-4);
+      margin-bottom: var(--sp-5);
     }
 
     .guide-section__icon {
       display: inline-grid;
       place-items: center;
-      width: 36px;
-      height: 36px;
+      width: 38px;
+      height: 38px;
       border-radius: var(--radius-md);
       background: var(--color-accent-bg);
       color: var(--color-accent);
@@ -193,7 +209,8 @@
       color: var(--color-text);
     }
 
-    /* Lista numerada de pasos */
+    /* ─── Pasos numerados ─────────────────────────────────────────────────── */
+
     .guide-steps {
       list-style: none;
       display: flex;
@@ -205,7 +222,7 @@
       display: flex;
       align-items: flex-start;
       gap: var(--sp-4);
-      padding: var(--sp-4);
+      padding: var(--sp-4) var(--sp-5);
       background: var(--color-bg-raised);
       border: 1px solid var(--color-border);
       border-radius: var(--radius-lg);
@@ -225,17 +242,19 @@
       font-family: var(--font-display);
       font-size: var(--text-xs);
       font-weight: 800;
+      margin-top: 2px;
     }
 
     .guide-steps__text {
       font-size: var(--text-base);
       color: var(--color-text-muted);
-      line-height: 1.6;
-      padding-top: 3px;
+      line-height: 1.65;
       max-width: none;
     }
+    .guide-steps__text strong { color: var(--color-text); }
 
-    /* Lista de viñetas */
+    /* ─── Lista de viñetas ────────────────────────────────────────────────── */
+
     .guide-list {
       list-style: none;
       display: flex;
@@ -247,24 +266,130 @@
       display: flex;
       align-items: flex-start;
       gap: var(--sp-3);
-      padding: var(--sp-4);
+      padding: var(--sp-4) var(--sp-5);
       background: var(--color-bg-raised);
       border: 1px solid var(--color-border);
       border-left: 3px solid var(--color-accent);
       border-radius: var(--radius-lg);
       font-size: var(--text-base);
       color: var(--color-text-muted);
-      line-height: 1.6;
+      line-height: 1.65;
     }
     .guide-list__item::before {
-      content: '•';
+      content: '→';
       color: var(--color-accent);
-      font-size: 1.2em;
-      line-height: 1.4;
+      font-weight: 700;
       flex-shrink: 0;
+      line-height: 1.65;
+    }
+    .guide-list__item strong { color: var(--color-text); }
+
+    /* ─── Planes ──────────────────────────────────────────────────────────── */
+
+    .guide-plans {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: var(--sp-4);
     }
 
-    /* Tabla de atajos */
+    .plan-card {
+      display: flex;
+      flex-direction: column;
+      gap: var(--sp-3);
+      padding: var(--sp-5);
+      background: var(--color-bg-raised);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      transition: border-color var(--transition-base), transform var(--transition-base);
+    }
+    .plan-card:hover {
+      border-color: var(--color-border-hi);
+      transform: translateY(-2px);
+    }
+    .plan-card--accent {
+      border-color: var(--color-accent);
+      background: color-mix(in srgb, var(--color-bg-raised) 90%, var(--color-accent));
+    }
+    .plan-card--accent:hover { border-color: var(--color-accent-hi); }
+
+    .plan-card__badge {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--sp-1);
+      padding: 3px var(--sp-3);
+      border-radius: var(--radius-full);
+      font-size: var(--text-xs);
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      width: fit-content;
+    }
+    .plan-card__badge--free {
+      background: var(--color-surface);
+      color: var(--color-text-muted);
+      border: 1px solid var(--color-border);
+    }
+    .plan-card__badge--pro {
+      background: linear-gradient(135deg, #ffd700, #ff8c00);
+      color: #fff;
+    }
+
+    .plan-card__name {
+      font-family: var(--font-display);
+      font-size: var(--text-xl);
+      font-weight: 800;
+      color: var(--color-text);
+      letter-spacing: -0.02em;
+    }
+
+    .plan-card__price {
+      display: flex;
+      align-items: baseline;
+      gap: var(--sp-1);
+    }
+    .plan-card__amount {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--color-text);
+      letter-spacing: -0.03em;
+    }
+    .plan-card--accent .plan-card__amount {
+      background: linear-gradient(135deg, var(--color-accent), var(--color-accent-lo));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .plan-card__period {
+      font-size: var(--text-sm);
+      color: var(--color-text-muted);
+    }
+
+    .plan-card__features {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: var(--sp-2);
+      flex: 1;
+    }
+    .plan-card__feature {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--sp-2);
+      font-size: var(--text-sm);
+      color: var(--color-text-muted);
+      line-height: 1.5;
+    }
+    .plan-card__feature::before {
+      content: '✓';
+      color: var(--color-accent);
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .plan-card__feature strong { color: var(--color-text); }
+
+    /* ─── Tabla de atajos ─────────────────────────────────────────────────── */
+
     .guide-table-wrapper {
       overflow-x: auto;
       border-radius: var(--radius-lg);
@@ -306,12 +431,10 @@
       vertical-align: middle;
     }
 
-    /* Tecla de teclado */
     .kbd {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: var(--sp-1);
       padding: 2px var(--sp-2);
       border-radius: var(--radius-sm);
       background: var(--color-bg-sunken);
@@ -324,15 +447,16 @@
       white-space: nowrap;
     }
 
-    /* Tarjetas de categoría */
+    /* ─── Tarjetas de categoría ───────────────────────────────────────────── */
+
     .guide-categories {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: var(--sp-3);
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: var(--sp-4);
     }
 
     .guide-cat {
-      padding: var(--sp-4);
+      padding: var(--sp-5);
       background: var(--color-bg-raised);
       border: 1px solid var(--color-border);
       border-radius: var(--radius-lg);
@@ -344,7 +468,7 @@
     }
 
     .guide-cat__emoji {
-      font-size: 1.5rem;
+      font-size: 1.6rem;
       margin-bottom: var(--sp-2);
       line-height: 1;
     }
@@ -353,33 +477,75 @@
       font-size: var(--text-base);
       font-weight: 700;
       color: var(--color-text);
-      margin-bottom: var(--sp-1);
+      margin-bottom: var(--sp-2);
     }
     .guide-cat__tip {
       font-size: var(--text-sm);
       color: var(--color-text-muted);
-      line-height: 1.5;
+      line-height: 1.55;
+      max-width: none;
     }
 
-    /* Inline code / bold */
-    code {
-      font-family: var(--font-mono);
-      font-size: 0.88em;
-      padding: 1px var(--sp-2);
-      border-radius: var(--radius-sm);
-      background: var(--color-surface);
+    /* ─── FAQ ─────────────────────────────────────────────────────────────── */
+
+    .guide-faq {
+      display: flex;
+      flex-direction: column;
+      gap: var(--sp-2);
+    }
+
+    .faq-item {
       border: 1px solid var(--color-border);
-      color: var(--color-accent);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      transition: border-color var(--transition-fast);
     }
+    .faq-item:hover { border-color: var(--color-border-hi); }
 
-    strong { color: var(--color-text); font-weight: 700; }
-
-    a {
-      color: var(--color-accent);
-      font-weight: 500;
+    .faq-item summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--sp-4);
+      padding: var(--sp-4) var(--sp-5);
+      cursor: pointer;
+      list-style: none;
+      font-size: var(--text-base);
+      font-weight: 600;
+      color: var(--color-text);
+      user-select: none;
+      transition: background var(--transition-fast);
     }
+    .faq-item summary:hover { background: var(--color-surface); }
+    .faq-item summary::-webkit-details-marker { display: none; }
 
-    /* Pie de página */
+    .faq-item summary::after {
+      content: '+';
+      font-size: 1.25rem;
+      color: var(--color-accent);
+      flex-shrink: 0;
+      font-weight: 400;
+      transition: transform var(--transition-base);
+    }
+    .faq-item[open] summary::after {
+      transform: rotate(45deg);
+    }
+    .faq-item[open] summary { background: var(--color-surface); }
+
+    .faq-item__body {
+      padding: var(--sp-4) var(--sp-5);
+      border-top: 1px solid var(--color-border);
+      font-size: var(--text-base);
+      color: var(--color-text-muted);
+      line-height: 1.7;
+    }
+    .faq-item__body p { max-width: none; color: inherit; }
+    .faq-item__body p + p { margin-top: var(--sp-3); }
+    .faq-item__body strong { color: var(--color-text); }
+    .faq-item__body a { color: var(--color-accent); font-weight: 500; }
+
+    /* ─── Footer ──────────────────────────────────────────────────────────── */
+
     .guide-footer {
       margin-top: var(--sp-8);
       padding-top: var(--sp-5);
@@ -408,9 +574,7 @@
       font-size: var(--text-sm);
       text-decoration: none;
       box-shadow: 0 4px 14px var(--color-accent-glow);
-      transition:
-        background var(--transition-fast),
-        transform var(--transition-fast);
+      transition: background var(--transition-fast), transform var(--transition-fast);
     }
     .guide-footer__cta:hover {
       background: var(--color-accent-hi);
@@ -418,11 +582,24 @@
       transform: translateY(-1px);
     }
 
-    /* Responsive */
+    /* ─── Inline utilities ────────────────────────────────────────────────── */
+    code {
+      font-family: var(--font-mono);
+      font-size: 0.88em;
+      padding: 1px var(--sp-2);
+      border-radius: var(--radius-sm);
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      color: var(--color-accent);
+    }
+    strong { color: var(--color-text); font-weight: 700; }
+
+    /* ─── Responsive ──────────────────────────────────────────────────────── */
     @media (max-width: 640px) {
       .guide-header__inner { padding-inline: var(--sp-4); }
-      .guide-body          { padding-inline: var(--sp-4); }
-      .guide-title         { font-size: 1.6rem; }
+      .guide-body          { padding-inline: var(--sp-4); padding-top: var(--sp-6); }
+      .guide-title         { font-size: 1.65rem; }
+      .guide-plans         { grid-template-columns: 1fr; }
       .guide-categories    { grid-template-columns: 1fr; }
       .guide-footer        { flex-direction: column; align-items: flex-start; }
       .guide-footer__cta   { width: 100%; justify-content: center; }
@@ -433,7 +610,7 @@
 
 <div class="guide-page">
 
-  <!-- Header mínimo -->
+  <!-- ── Header ───────────────────────────────────────────────────────────── -->
   <header class="guide-header">
     <div class="guide-header__inner">
       <a href="../../index.html" class="guide-back" aria-label="Volver al dashboard">
@@ -449,7 +626,7 @@
     </div>
   </header>
 
-  <!-- Contenido principal -->
+  <!-- ── Contenido ─────────────────────────────────────────────────────────── -->
   <main class="guide-body" id="main-content">
 
     <!-- Hero -->
@@ -457,108 +634,190 @@
       <span class="guide-eyebrow">📖 Documentación</span>
       <h1 class="guide-title">Guía rápida</h1>
       <p class="guide-subtitle">
-        Todo lo que necesitas saber para generar contenido con IA en menos de un minuto.
+        Todo lo que necesitas saber para crear contenido con IA, gestionar tu cuenta
+        y entender cómo funciona el sistema de créditos.
       </p>
     </div>
 
-    <!-- Sección 1: Empezar -->
+    <!-- Banner de estado de la plataforma -->
+    <div class="guide-banner guide-banner--info" role="note">
+      <span class="guide-banner__icon" aria-hidden="true">🔒</span>
+      <p class="guide-banner__text">
+        <strong>Plataforma autenticada.</strong>
+        Tu cuenta, tu historial y tus créditos se gestionan en el servidor.
+        No necesitas ninguna API key: la infraestructura ya está configurada.
+      </p>
+    </div>
+
+    <!-- ── 1. Empezar ──────────────────────────────────────────────────────── -->
     <section class="guide-section" aria-labelledby="s-start">
       <div class="guide-section__header">
         <span class="guide-section__icon" aria-hidden="true">🚀</span>
-        <h2 class="guide-section__title" id="s-start">Empezar en 1 minuto</h2>
+        <h2 class="guide-section__title" id="s-start">Empezar en 2 minutos</h2>
       </div>
       <ol class="guide-steps">
         <li class="guide-steps__item">
           <span class="guide-steps__num">1</span>
           <p class="guide-steps__text">
-            Abre el dashboard y elige una categoría:
-            <strong>Creadores</strong>, <strong>Empleo</strong> o <strong>Negocios</strong>.
+            <strong>Crea tu cuenta</strong> con correo y contraseña, o en un clic con
+            <strong>Google</strong> o <strong>GitHub</strong>.
+            La autenticación está gestionada por Supabase Auth — segura y sin que
+            guardemos contraseñas en texto plano.
           </p>
         </li>
         <li class="guide-steps__item">
           <span class="guide-steps__num">2</span>
-          <p class="guide-steps__text">Entra a la herramienta que necesitas.</p>
+          <p class="guide-steps__text">
+            Elige una categoría en el header: <strong>Creadores</strong>,
+            <strong>Empleo</strong> o <strong>Negocios</strong>.
+          </p>
         </li>
         <li class="guide-steps__item">
           <span class="guide-steps__num">3</span>
           <p class="guide-steps__text">
-            Escribe al menos <strong>10 caracteres</strong> en el campo de texto.
-            Cuanto más contexto des, mejor el resultado.
+            Entra a la herramienta que necesitas y escribe al menos
+            <strong>10 caracteres</strong> de contexto en el campo de texto.
+            Cuanto más específico, mejor el resultado.
           </p>
         </li>
         <li class="guide-steps__item">
           <span class="guide-steps__num">4</span>
           <p class="guide-steps__text">
-            Pulsa <strong>Generar con IA</strong> y espera unos segundos.
+            Pulsa <strong>Generar con IA</strong>. El servidor valida tu sesión,
+            verifica que tienes créditos disponibles, llama al modelo y
+            te devuelve el resultado estructurado.
           </p>
         </li>
         <li class="guide-steps__item">
           <span class="guide-steps__num">5</span>
           <p class="guide-steps__text">
-            Copia el resultado con el botón <strong>Copiar</strong>
-            o reintenta si el output no te convence.
+            <strong>Copia</strong> el resultado o <strong>reintenta</strong>
+            si el output no te convence. Cada intento consume un crédito.
           </p>
         </li>
       </ol>
     </section>
 
-    <!-- Sección 2: API -->
-    <section class="guide-section" aria-labelledby="s-api">
+    <!-- ── 2. Planes y créditos ───────────────────────────────────────────── -->
+    <section class="guide-section" aria-labelledby="s-plans">
       <div class="guide-section__header">
-        <span class="guide-section__icon" aria-hidden="true">⚙️</span>
-        <h2 class="guide-section__title" id="s-api">Configurar la API</h2>
+        <span class="guide-section__icon" aria-hidden="true">💳</span>
+        <h2 class="guide-section__title" id="s-plans">Planes y créditos</h2>
       </div>
-      <ol class="guide-steps">
-        <li class="guide-steps__item">
-          <span class="guide-steps__num">1</span>
-          <p class="guide-steps__text">
-            Haz clic en el icono <strong>⚙️</strong> en la barra superior.
-          </p>
-        </li>
-        <li class="guide-steps__item">
-          <span class="guide-steps__num">2</span>
-          <p class="guide-steps__text">
-            Pega tu API Key gratuita de
-            <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer">
-              Google AI Studio
-            </a>.
-            Tu key se guarda solo en tu navegador, nunca en un servidor.
-          </p>
-        </li>
-        <li class="guide-steps__item">
-          <span class="guide-steps__num">3</span>
-          <p class="guide-steps__text">
-            O activa <strong>Modo de prueba</strong> para explorar la interfaz
-            sin consumir cuota de API.
-          </p>
-        </li>
-      </ol>
+
+      <div class="guide-plans">
+        <!-- Plan gratuito -->
+        <div class="plan-card">
+          <span class="plan-card__badge plan-card__badge--free">Gratis</span>
+          <div class="plan-card__name">Starter</div>
+          <div class="plan-card__price">
+            <span class="plan-card__amount">$0</span>
+            <span class="plan-card__period">/ siempre</span>
+          </div>
+          <ul class="plan-card__features">
+            <li class="plan-card__feature"><strong>10 generaciones</strong> al día</li>
+            <li class="plan-card__feature">Acceso a las 9 herramientas</li>
+            <li class="plan-card__feature">Historial de las últimas 7 generaciones</li>
+            <li class="plan-card__feature">Modelo estándar (Gemini Flash)</li>
+          </ul>
+        </div>
+
+        <!-- Plan PRO -->
+        <div class="plan-card plan-card--accent">
+          <span class="plan-card__badge plan-card__badge--pro">⚡ PRO</span>
+          <div class="plan-card__name">PRO</div>
+          <div class="plan-card__price">
+            <span class="plan-card__amount">$9.99</span>
+            <span class="plan-card__period">/ mes</span>
+          </div>
+          <ul class="plan-card__features">
+            <li class="plan-card__feature"><strong>Generaciones ilimitadas</strong></li>
+            <li class="plan-card__feature">Historial completo exportable</li>
+            <li class="plan-card__feature">Modelo avanzado (Gemini Pro)</li>
+            <li class="plan-card__feature">Perfil de marca guardado</li>
+            <li class="plan-card__feature">Soporte prioritario</li>
+            <li class="plan-card__feature">Nuevas herramientas antes que nadie</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="guide-banner guide-banner--warn" style="margin-top: var(--sp-5); margin-bottom: 0;">
+        <span class="guide-banner__icon" aria-hidden="true">⚠️</span>
+        <p class="guide-banner__text">
+          Cuando agotes tu límite diario, el servidor devolverá un aviso y
+          verás el modal de actualización. El contador se reinicia automáticamente
+          a medianoche (UTC). <strong>No hay forma de saltarlo desde el cliente</strong>:
+          la validación ocurre 100% en el backend.
+        </p>
+      </div>
     </section>
 
-    <!-- Sección 3: Límite gratuito -->
-    <section class="guide-section" aria-labelledby="s-limit">
+    <!-- ── 3. Tu cuenta ───────────────────────────────────────────────────── -->
+    <section class="guide-section" aria-labelledby="s-account">
       <div class="guide-section__header">
-        <span class="guide-section__icon" aria-hidden="true">📊</span>
-        <h2 class="guide-section__title" id="s-limit">Límite gratuito</h2>
+        <span class="guide-section__icon" aria-hidden="true">👤</span>
+        <h2 class="guide-section__title" id="s-account">Tu cuenta</h2>
       </div>
       <ul class="guide-list">
         <li class="guide-list__item">
-          Tienes <strong>3 generaciones por día</strong> en el plan gratis.
+          <strong>Sesión segura:</strong> tu autenticación viaja en cookies
+          <code>HTTP-only</code>. Ningún script del navegador puede leerlas
+          ni manipularlas.
         </li>
         <li class="guide-list__item">
-          El contador se reinicia automáticamente a medianoche.
+          <strong>Historial de generaciones:</strong> cada resultado queda
+          guardado en la base de datos. Puedes consultarlo desde tu perfil.
+          En el plan Starter se conservan los últimos 7; en PRO, todo el historial.
         </li>
         <li class="guide-list__item">
-          El botón 🔄 solo existe para pruebas locales; no afecta al límite real.
+          <strong>Registro de uso:</strong> cada petición queda en
+          <code>usage_logs</code> con timestamp, herramienta usada y tokens
+          consumidos. Lo puedes ver en el panel de tu cuenta.
         </li>
         <li class="guide-list__item">
-          Con tu propia API Key de Google, las generaciones solo están limitadas
-          por tu cuota de Google AI Studio.
+          <strong>Cambiar plan:</strong> desde tu perfil puedes cambiar a PRO
+          o cancelar en cualquier momento. La cancelación se aplica al final
+          del período facturado. Garantía de 7 días.
+        </li>
+        <li class="guide-list__item">
+          <strong>Eliminar cuenta:</strong> tienes derecho a solicitar la
+          eliminación total de tus datos (RGPD). Escríbenos desde el soporte.
         </li>
       </ul>
     </section>
 
-    <!-- Sección 4: Atajos de teclado -->
+    <!-- ── 4. Privacidad y seguridad ─────────────────────────────────────── -->
+    <section class="guide-section" aria-labelledby="s-security">
+      <div class="guide-section__header">
+        <span class="guide-section__icon" aria-hidden="true">🛡️</span>
+        <h2 class="guide-section__title" id="s-security">Privacidad y seguridad</h2>
+      </div>
+      <ul class="guide-list">
+        <li class="guide-list__item">
+          <strong>API keys del proveedor de IA en variables de entorno del servidor</strong>,
+          nunca en el navegador ni en el código fuente del frontend.
+        </li>
+        <li class="guide-list__item">
+          <strong>Sin localStorage sensible.</strong> No guardamos tokens de sesión,
+          contadores ni datos de pago en el navegador. Solo la preferencia de tema.
+        </li>
+        <li class="guide-list__item">
+          <strong>El límite de generaciones se valida en el servidor.</strong>
+          No hay ninguna variable en el cliente que se pueda modificar para
+          desbloquear generaciones extra.
+        </li>
+        <li class="guide-list__item">
+          <strong>Tus textos de entrada no se comparten</strong> con terceros más
+          allá del proveedor de IA que procesa la petición (Google Gemini).
+          Consulta su política en
+          <a href="https://ai.google.dev/gemini-api/terms" target="_blank" rel="noopener noreferrer">
+            ai.google.dev/gemini-api/terms
+          </a>.
+        </li>
+      </ul>
+    </section>
+
+    <!-- ── 5. Atajos de teclado ───────────────────────────────────────────── -->
     <section class="guide-section" aria-labelledby="s-keys">
       <div class="guide-section__header">
         <span class="guide-section__icon" aria-hidden="true">⌨️</span>
@@ -586,10 +845,6 @@
               <td>Alternar tema claro / oscuro</td>
             </tr>
             <tr>
-              <td><kbd class="kbd">A</kbd></td>
-              <td>Abrir configuración de API Key</td>
-            </tr>
-            <tr>
               <td><kbd class="kbd">/</kbd></td>
               <td>Enfocar el campo de texto (dentro de una herramienta)</td>
             </tr>
@@ -602,7 +857,7 @@
       </div>
     </section>
 
-    <!-- Sección 5: Consejos por categoría -->
+    <!-- ── 6. Consejos por categoría ─────────────────────────────────────── -->
     <section class="guide-section" aria-labelledby="s-tips">
       <div class="guide-section__header">
         <span class="guide-section__icon" aria-hidden="true">💡</span>
@@ -613,18 +868,19 @@
           <div class="guide-cat__emoji">🎬</div>
           <div class="guide-cat__name">Creadores</div>
           <p class="guide-cat__tip">
-            Sé específico con el <strong>tema</strong>, el <strong>tono</strong>
-            y la <strong>plataforma</strong> (TikTok, Reels, Shorts).
-            Cuanto más contexto, más accionable el guion o el gancho.
+            Indica el <strong>tema concreto</strong>, el <strong>tono</strong>
+            (cercano, técnico, humorístico) y la <strong>plataforma</strong>
+            (TikTok, Reels, Shorts, YouTube). Cuanto más específico,
+            más accionable el guion o el gancho.
           </p>
         </div>
         <div class="guide-cat">
           <div class="guide-cat__emoji">💼</div>
           <div class="guide-cat__name">Empleo</div>
           <p class="guide-cat__tip">
-            Pega el <strong>CV real</strong> y/o la <strong>oferta de trabajo</strong>.
-            No inventes métricas; si falta un dato, el modelo te dejará un marcador
-            visible para completarlo tú.
+            Pega el <strong>CV real</strong> y la <strong>oferta de trabajo</strong>
+            completa. El modelo nunca inventa métricas: si falta un dato, te deja
+            un marcador <code>[MÉTRICA: descripción]</code> para que lo rellenes tú.
           </p>
         </div>
         <div class="guide-cat">
@@ -633,16 +889,111 @@
           <p class="guide-cat__tip">
             Describe el <strong>producto</strong>, la <strong>audiencia</strong>
             y el <strong>resultado deseado</strong>. Los emails y pitches mejoran
-            mucho con contexto real del cliente o empresa objetivo.
+            mucho con el nombre real de la empresa o cliente objetivo.
           </p>
         </div>
       </div>
     </section>
 
-    <!-- Pie de página -->
+    <!-- ── 7. Preguntas frecuentes ────────────────────────────────────────── -->
+    <section class="guide-section" aria-labelledby="s-faq">
+      <div class="guide-section__header">
+        <span class="guide-section__icon" aria-hidden="true">❓</span>
+        <h2 class="guide-section__title" id="s-faq">Preguntas frecuentes</h2>
+      </div>
+      <div class="guide-faq">
+
+        <details class="faq-item">
+          <summary>¿Mis textos se guardan? ¿Los puede ver alguien?</summary>
+          <div class="faq-item__body">
+            <p>
+              Las entradas que escribes y los resultados generados se guardan en
+              la base de datos asociada a <strong>tu cuenta</strong>. Solo tú puedes
+              verlos. Nuestro equipo no lee el contenido de tus generaciones salvo
+              en caso de reporte de abuso.
+            </p>
+            <p>
+              El texto que envías al modelo pasa por Google Gemini.
+              Consulta la
+              <a href="https://ai.google.dev/gemini-api/terms" target="_blank" rel="noopener noreferrer">
+                política de datos de Gemini API
+              </a>
+              para saber cómo lo trata Google.
+            </p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>¿Qué pasa si el resultado no me sirve?</summary>
+          <div class="faq-item__body">
+            <p>
+              Puedes usar el botón <strong>Reintentar</strong>: el servidor genera
+              una nueva respuesta con la misma entrada. Cada intento consume un
+              crédito, así que ajusta tu texto si el primer resultado se desvió
+              mucho de lo que esperabas.
+            </p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>¿Puedo cancelar el plan PRO cuando quiera?</summary>
+          <div class="faq-item__body">
+            <p>
+              Sí. La cancelación se aplica al final del período ya facturado
+              y no genera cargos adicionales. Tienes una <strong>garantía de 7 días</strong>:
+              si cancelas antes de esa fecha desde la suscripción inicial,
+              te devolvemos el importe completo.
+            </p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>¿Por qué no hay un campo para poner mi propia API key?</summary>
+          <div class="faq-item__body">
+            <p>
+              Las API keys de proveedores de IA deben vivir en el servidor,
+              no en el navegador. Si alguien inspecciona el código o el tráfico de red,
+              una key expuesta en el cliente puede ser robada en segundos.
+            </p>
+            <p>
+              Aquí, la key está en las variables de entorno del servidor backend.
+              El navegador solo envía tu contenido; nunca ve la credencial del proveedor.
+            </p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>¿Qué modelos de IA usa la plataforma?</summary>
+          <div class="faq-item__body">
+            <p>
+              El plan <strong>Starter</strong> usa Gemini 1.5 Flash (rápido y eficiente).
+              El plan <strong>PRO</strong> accede a Gemini 1.5 Pro para respuestas
+              más elaboradas y con mayor ventana de contexto.
+              Los modelos pueden actualizarse sin previo aviso cuando Google publique
+              versiones mejoradas.
+            </p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>¿Cómo puedo eliminar mi cuenta y mis datos?</summary>
+          <div class="faq-item__body">
+            <p>
+              Desde el panel de tu perfil encontrarás la opción
+              <strong>Eliminar cuenta</strong>. Al confirmar, se borrarán tu usuario,
+              historial de generaciones y registros de uso de forma permanente
+              en un plazo máximo de 30 días (cumplimiento RGPD).
+            </p>
+          </div>
+        </details>
+
+      </div>
+    </section>
+
+    <!-- Footer -->
     <footer class="guide-footer">
       <p class="guide-footer__text">
-        ¿Algo no está claro? El Modo de prueba es tuyo para experimentar sin coste.
+        ¿Tienes otra pregunta? Escríbenos desde el panel de soporte.
       </p>
       <a href="../../index.html" class="guide-footer__cta">
         Ir al dashboard →
@@ -650,10 +1001,10 @@
     </footer>
 
   </main>
-</div>
+</div><!-- /.guide-page -->
 
 <script>
-  // Aplicar tema guardado antes de pintar (evita flash)
+  // Aplicar tema guardado antes de pintar (evita flash de contenido sin estilo)
   (function () {
     const saved = localStorage.getItem('theme') || 'dark';
     document.documentElement.setAttribute('data-theme', saved);
@@ -661,7 +1012,7 @@
     document.documentElement.classList.add('ready');
   })();
 
-  // Toggle de tema
+  // Toggle de tema sincronizado con la app principal
   document.getElementById('themeBtn').addEventListener('click', function () {
     const current = document.documentElement.getAttribute('data-theme') || 'dark';
     const next = current === 'dark' ? 'light' : 'dark';
