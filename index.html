@@ -37,16 +37,6 @@
           <button class="theme-toggle" id="themeToggle" aria-label="Cambiar tema claro/oscuro">
             <span class="theme-icon" aria-hidden="true">☀️</span>
           </button>
-          <div class="usage-display" id="usageDisplay" aria-live="polite" aria-label="Uso diario de generaciones">
-            <span class="usage-count">3/3</span>
-            <span class="usage-text">hoy</span>
-          </div>
-          <button class="reset-usage-btn" id="resetUsageBtn" aria-label="Resetear contador de uso" title="Resetear contador (solo pruebas)">
-            <span aria-hidden="true">🔄</span>
-          </button>
-          <button class="api-config-btn" id="apiConfigBtn" aria-label="Configurar API Key" title="Configurar API Key">
-            <span class="api-icon" aria-hidden="true">⚙️</span>
-          </button>
         </div>
       </div>
     </header>
@@ -285,40 +275,7 @@
   <!-- Toast Container -->
   <div class="toast-container" id="toastContainer" aria-live="polite" aria-atomic="true"></div>
 
-  <!-- API Key Configuration Modal -->
-  <div id="apiModal" class="modal hidden">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3>⚙️ Configuración API</h3>
-        <button class="modal-close" id="modalClose">✕</button>
-      </div>
-      <div class="modal-body">
-        <label for="apiKeyInput">Google Gemini API Key:</label>
-        <input 
-          type="password" 
-          id="apiKeyInput" 
-          placeholder="Ingresa tu API Key de Google AI Studio"
-          class="api-input"
-        >
-        <p class="api-hint">
-          💡 Obtén tu API Key gratuita en: 
-          <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer">Google AI Studio</a>
-        </p>
-        <div class="test-mode-section">
-          <label class="checkbox-label">
-            <input type="checkbox" id="testMode">
-            <span>Modo de prueba (sin consumo de API)</span>
-          </label>
-        </div>
-        <div class="api-buttons">
-          <button class="save-api-btn" id="saveApiBtn">Guardar API Key</button>
-          <button class="test-api-btn" id="testApiBtn">🧪 Probar Conexión</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Paywall Modal -->
+  <!-- Paywall Modal (activado por el servidor cuando se agota la cuota) -->
   <div id="paywallModal" class="modal hidden">
     <div class="modal-content paywall-content">
       <div class="paywall-header">
@@ -328,7 +285,8 @@
       </div>
       <div class="paywall-body">
         <p class="paywall-message">
-          Has utilizado tus <strong>3 generaciones gratuitas</strong> de hoy.
+          Has alcanzado el límite de generaciones de hoy.
+          Vuelve mañana o actualiza a PRO para acceso ilimitado.
         </p>
         <div class="paywall-features">
           <div class="feature-item">

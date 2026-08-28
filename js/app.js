@@ -1,9 +1,4 @@
-import { generar, ErrorGeneracion, obtenerKeyLocal, guardarKeyLocal, borrarKeyLocal } from './api-client.js';
-
-// Usage tracking configuration
-const DAILY_LIMIT = 3;
-const USAGE_STORAGE_KEY = 'ai_tools_usage';
-const PRO_USER_KEY = 'ai_tools_pro_user';
+import { generar, ErrorGeneracion } from './api-client.js';
 
 // DOM Elements
 const navButtons = document.querySelectorAll('.nav-btn');
@@ -23,20 +18,10 @@ const retryBtn = document.getElementById('retryBtn');
 // Toast Container
 const toastContainer = document.getElementById('toastContainer');
 
-// API Config Elements
-const apiConfigBtn = document.getElementById('apiConfigBtn');
-const apiModal = document.getElementById('apiModal');
-const modalClose = document.getElementById('modalClose');
-const apiKeyInput = document.getElementById('apiKeyInput');
-const saveApiBtn = document.getElementById('saveApiBtn');
-const testModeCheckbox = document.getElementById('testMode');
-const testApiBtn = document.getElementById('testApiBtn');
-
 // Paywall Modal Elements
 const paywallModal = document.getElementById('paywallModal');
 const paywallClose = document.getElementById('paywallClose');
 const upgradeBtn = document.getElementById('upgradeBtn');
-const resetUsageBtn = document.getElementById('resetUsageBtn');
 
 // Demo Elements
 const demoSteps = document.getElementById('demoSteps');
@@ -61,65 +46,6 @@ const breadcrumb = document.getElementById('breadcrumb');
 let currentTool = null;
 
 // Usage tracking functions
-function getTodayDate() {
-  return new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
-}
-
-function getUsageData() {
-  const stored = localStorage.getItem(USAGE_STORAGE_KEY);
-  if (stored) {
-    return JSON.parse(stored);
-  }
-  return {
-    date: getTodayDate(),
-    count: 0
-  };
-}
-
-function checkDailyLimit() {
-  // Check if user is PRO
-  if (localStorage.getItem(PRO_USER_KEY) === 'true') {
-    return { allowed: true, remaining: Infinity };
-  }
-
-  const usage = getUsageData();
-  const today = getTodayDate();
-
-  // Reset if it's a new day
-  if (usage.date !== today) {
-    usage.date = today;
-    usage.count = 0;
-    localStorage.setItem(USAGE_STORAGE_KEY, JSON.stringify(usage));
-  }
-
-  const remaining = DAILY_LIMIT - usage.count;
-  return {
-    allowed: remaining > 0,
-    remaining: remaining,
-    used: usage.count,
-    limit: DAILY_LIMIT
-  };
-}
-
-function incrementUsage() {
-  // Don't increment for PRO users
-  if (localStorage.getItem(PRO_USER_KEY) === 'true') {
-    return;
-  }
-
-  const usage = getUsageData();
-  const today = getTodayDate();
-
-  // Reset if it's a new day
-  if (usage.date !== today) {
-    usage.date = today;
-    usage.count = 0;
-  }
-
-  usage.count++;
-  localStorage.setItem(USAGE_STORAGE_KEY, JSON.stringify(usage));
-}
-
 function showPaywallModal() {
   paywallModal.classList.remove('hidden');
 }
@@ -136,7 +62,6 @@ document.addEventListener('DOMContentLoaded', () => {
   initGenerateButton();
   initCopyButton();
   initBackButton();
-  initApiConfig();
   initPaywallModal();
   initKeyboardShortcuts();
   initFormValidation();
@@ -144,7 +69,6 @@ document.addEventListener('DOMContentLoaded', () => {
   initDemoSteps();
   initVideoFallback();
   loadTheme();
-  updateUsageDisplay();
 });
 
 // Interactive demo (tutorial)
@@ -459,18 +383,6 @@ async function generateContent(toolType) {
     return;
   }
   
-  // Check daily limit
-  const limitCheck = checkDailyLimit();
-  if (!limitCheck.allowed) {
-    showPaywallModal();
-    return;
-  }
-  
-  // Show remaining uses to user (toast, no native confirm)
-  if (limitCheck.remaining <= 1 && limitCheck.remaining !== Infinity) {
-    showToast('info', 'Última generación gratis', `Te queda ${limitCheck.remaining} de ${limitCheck.limit} hoy.`, 4000);
-  }
-  
   // Show loading state
   generateBtn.disabled = true;
   generateBtn.classList.add('loading');
@@ -480,17 +392,8 @@ async function generateContent(toolType) {
   
   try {
     const inputs = getInputsForTool(toolType, input);
-    let response;
-    if (obtenerKeyLocal() === 'TEST_MODE') {
-      response = await simulateAIResponse(toolType);
-    } else {
-      response = await generar(toolType, inputs, {});
-    }
-    
-    // Increment usage counter after successful generation
-    incrementUsage();
-    updateUsageDisplay();
-    
+    const response = await generar(toolType, inputs, {});
+
     // Format response (now it's JSON)
     resultContent.innerHTML = formatJsonResponse(response);
     
@@ -610,16 +513,8 @@ function escapeHtml(text) {
     .replace(/'/g, '&#39;');
 }
 
-// Simulate AI response for testing purposes (JSON aligned with prompts.js schemas)
-function simulateAIResponse(toolType) {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(getMockResponse(toolType));
-    }, 800);
-  });
-}
-
-function getMockResponse(toolType) {
+// _removedMocks — placeholder vacío, eliminar en el siguiente commit
+function _removedMocks(t) {
   const mocks = {
     'script-generator': {
       hook: 'Deja de perder 2 horas al día en tareas que ya puedes automatizar.',
@@ -708,10 +603,7 @@ function getMockResponse(toolType) {
     },
   };
 
-  return mocks[toolType] || {
-    resultado: 'Respuesta de prueba generada en modo TEST_MODE.',
-    nota: 'Configura tu API Key real para usar Gemini.',
-  };
+  void mocks; void t;
 }
 
 // Format response with proper line breaks and markdown
@@ -740,14 +632,17 @@ function handleApiError(error) {
   let errorMessage = error.message || 'Error al generar la respuesta.';
 
   if (error instanceof ErrorGeneracion) {
-    // El mensaje ya viene traducido desde api-client.js
-    if (error.codigo === 'requiere_api_key') openApiModal();
+    // El servidor devuelve códigos semánticos; la UI reacciona según el caso
+    if (error.codigo === 'cuota_agotada') {
+      showPaywallModal();
+      return; // El modal es la UI de error; no sobreescribir el resultado
+    }
   } else if (
     error.message?.includes('Failed to fetch') ||
-    error.message?.includes('network') ||
-    error.message?.includes('fetch')
+    error.message?.includes('NetworkError') ||
+    error.message?.includes('network')
   ) {
-    errorMessage = 'Error de conexión. Verifica tu internet.';
+    errorMessage = 'Sin conexión. Comprueba tu red e inténtalo de nuevo.';
   }
 
   resultContent.innerHTML = `
@@ -796,48 +691,15 @@ async function handleCopy() {
   }
 }
 
-// Paywall Modal initialization
+// Paywall Modal — se muestra cuando el servidor devuelve 'cuota_agotada'
 function initPaywallModal() {
   paywallClose.addEventListener('click', hidePaywallModal);
-  upgradeBtn.addEventListener('click', () => {
-    // Simulate upgrade process
-    showToast('info', 'Upgrade a PRO', '¡Gracias por tu interés! Esta es una demo de pago.');
-    // For demo purposes, unlock PRO
-    localStorage.setItem(PRO_USER_KEY, 'true');
-    hidePaywallModal();
-    updateUsageDisplay();
-    showToast('success', 'PRO Activado', 'Versión PRO activada (demo) - ¡Generaciones ilimitadas!');
-  });
-  
-  // Reset usage button (for testing purposes)
-  resetUsageBtn.addEventListener('click', () => {
-    if (resetUsageBtn.dataset.confirm !== '1') {
-      resetUsageBtn.dataset.confirm = '1';
-      resetUsageBtn.title = 'Haz clic de nuevo para confirmar';
-      showToast('info', 'Confirmar reset', 'Haz clic otra vez en 🔄 para resetear el contador.', 4000);
-      setTimeout(() => {
-        resetUsageBtn.dataset.confirm = '0';
-        resetUsageBtn.title = 'Resetear contador (solo pruebas)';
-      }, 4000);
-      return;
-    }
+  upgradeBtn.addEventListener('click', hidePaywallModal); // Placeholder: enlazar a pasarela de pago real
 
-    resetUsageBtn.dataset.confirm = '0';
-    resetUsageBtn.title = 'Resetear contador (solo pruebas)';
-    localStorage.removeItem(USAGE_STORAGE_KEY);
-    localStorage.removeItem(PRO_USER_KEY);
-    updateUsageDisplay();
-    showToast('success', 'Contador reseteado', 'Tienes 3 generaciones gratuitas nuevamente.');
-  });
-  
-  // Close modal when clicking outside
   paywallModal.addEventListener('click', (e) => {
-    if (e.target === paywallModal) {
-      hidePaywallModal();
-    }
+    if (e.target === paywallModal) hidePaywallModal();
   });
-  
-  // Close modal with Escape key
+
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && !paywallModal.classList.contains('hidden')) {
       hidePaywallModal();
@@ -875,22 +737,6 @@ function showToast(type, title, message, duration = 3000) {
   }, duration);
 }
 
-// Update usage display in UI
-function updateUsageDisplay() {
-  const usage = checkDailyLimit();
-  const usageDisplay = document.getElementById('usageDisplay');
-  
-  if (usageDisplay) {
-    if (usage.remaining === Infinity) {
-      usageDisplay.innerHTML = '<span class="pro-badge">PRO</span> <span class="usage-text">Ilimitado</span>';
-    } else {
-      usageDisplay.innerHTML = `<span class="usage-count">${usage.remaining}/${usage.limit}</span> <span class="usage-text">hoy</span>`;
-    }
-  } else {
-    console.warn('Usage display element not found');
-  }
-}
-
 // Keyboard Shortcuts
 function initKeyboardShortcuts() {
   document.addEventListener('keydown', (e) => {
@@ -918,18 +764,6 @@ function initKeyboardShortcuts() {
     if (e.key === 't' || e.key === 'T') {
       e.preventDefault();
       themeToggle.click();
-    }
-
-    // API config (A)
-    if (e.key === 'a' || e.key === 'A') {
-      e.preventDefault();
-      apiConfigBtn.click();
-    }
-
-    // Reset usage (R)
-    if (e.key === 'r' || e.key === 'R') {
-      e.preventDefault();
-      resetUsageBtn.click();
     }
 
     // Go back to dashboard (Escape)
@@ -1093,158 +927,6 @@ function validateInput() {
   generateBtn.disabled = !isValid || length === 0;
   
   return isValid;
-}
-
-// Automated test function for API endpoint
-async function testApiEndpoint() {
-  console.log('🧪 Iniciando prueba del endpoint...');
-  try {
-    const result = await generar('hook-generator', {
-      tema: 'Responde solo si puedes leer este mensaje de prueba.',
-    });
-    console.log('✅ Prueba exitosa:', result);
-    return true;
-  } catch (error) {
-    console.error('❌ Prueba fallida:', error);
-    return false;
-  }
-}
-
-// Manual test function for API connection
-async function testApiConnection() {
-  const testKey = apiKeyInput.value.trim();
-
-  if (!testKey) {
-    showToast('error', 'API Key requerida', 'Ingresa una API Key para probar la conexión.');
-    return;
-  }
-
-  // Guardar temporalmente la key de prueba y restaurar al terminar
-  const originalKey = obtenerKeyLocal();
-  guardarKeyLocal(testKey);
-
-  testApiBtn.textContent = '⏳ Probando...';
-  testApiBtn.disabled = true;
-
-  try {
-    const success = await testApiEndpoint();
-
-    if (success) {
-      testApiBtn.textContent = '✅ Conexión exitosa';
-      testApiBtn.style.background = '#10b981';
-      testApiBtn.style.color = 'white';
-      testApiBtn.style.borderColor = '#10b981';
-
-      setTimeout(() => {
-        testApiBtn.textContent = '🧪 Probar Conexión';
-        testApiBtn.style.background = '';
-        testApiBtn.style.color = '';
-        testApiBtn.style.borderColor = '';
-        testApiBtn.disabled = false;
-      }, 2000);
-
-      showToast('success', 'Conexión exitosa', 'La API Key funciona correctamente. HTTP 200 OK recibido.');
-    } else {
-      throw new Error('La prueba de conexión falló');
-    }
-  } catch (error) {
-    testApiBtn.textContent = '❌ Error de conexión';
-    testApiBtn.style.background = '#ef4444';
-    testApiBtn.style.color = 'white';
-    testApiBtn.style.borderColor = '#ef4444';
-
-    setTimeout(() => {
-      testApiBtn.textContent = '🧪 Probar Conexión';
-      testApiBtn.style.background = '';
-      testApiBtn.style.color = '';
-      testApiBtn.style.borderColor = '';
-      testApiBtn.disabled = false;
-    }, 2000);
-
-    showToast('error', 'Error de conexión', `${error.message}. Verifica tu API Key e intenta nuevamente.`);
-  } finally {
-    // Restaurar key original
-    if (originalKey) guardarKeyLocal(originalKey);
-    else borrarKeyLocal();
-  }
-}
-
-// API Configuration Modal
-function initApiConfig() {
-  apiConfigBtn.addEventListener('click', openApiModal);
-  modalClose.addEventListener('click', closeApiModal);
-  saveApiBtn.addEventListener('click', saveApiKey);
-  testApiBtn.addEventListener('click', testApiConnection);
-  
-  // Close modal when clicking outside
-  apiModal.addEventListener('click', (e) => {
-    if (e.target === apiModal) {
-      closeApiModal();
-    }
-  });
-  
-  // Close modal with Escape key
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && !apiModal.classList.contains('hidden')) {
-      closeApiModal();
-    }
-  });
-  
-  // Load saved API key into input
-  const savedKey = obtenerKeyLocal();
-  if (savedKey) {
-    if (savedKey === 'TEST_MODE') {
-      testModeCheckbox.checked = true;
-      apiKeyInput.value = '';
-    } else {
-      apiKeyInput.value = savedKey;
-    }
-  }
-}
-
-function openApiModal() {
-  const key = obtenerKeyLocal();
-  apiModal.classList.remove('hidden');
-  apiKeyInput.value = key === 'TEST_MODE' ? '' : (key || '');
-  testModeCheckbox.checked = key === 'TEST_MODE';
-  apiKeyInput.focus();
-}
-
-function closeApiModal() {
-  apiModal.classList.add('hidden');
-}
-
-function saveApiKey() {
-  if (testModeCheckbox.checked) {
-    guardarKeyLocal('TEST_MODE');
-
-    saveApiBtn.textContent = '✅ Guardado';
-    saveApiBtn.style.background = '#10b981';
-
-    setTimeout(() => {
-      saveApiBtn.textContent = 'Guardar API Key';
-      saveApiBtn.style.background = '';
-      closeApiModal();
-    }, 1500);
-  } else {
-    const newApiKey = apiKeyInput.value.trim();
-
-    if (!newApiKey) {
-      showToast('error', 'API Key requerida', 'Ingresa una API Key válida o activa el modo de prueba.');
-      return;
-    }
-
-    guardarKeyLocal(newApiKey);
-
-    saveApiBtn.textContent = '✅ Guardado';
-    saveApiBtn.style.background = '#10b981';
-
-    setTimeout(() => {
-      saveApiBtn.textContent = 'Guardar API Key';
-      saveApiBtn.style.background = '';
-      closeApiModal();
-    }, 1500);
-  }
 }
 
 // Expose breadcrumb helpers used by inline onclick handlers
